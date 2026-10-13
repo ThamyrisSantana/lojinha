@@ -712,7 +712,7 @@ async function submitDrawer(){
   }
   if(prev.exemplo)obj.exemplo=true;
   if(prev.criadoEm)obj.criadoEm=prev.criadoEm; else obj.criadoEm=new Date().toISOString();
-  try{await save(col,id,obj);closeDrawer();toast('Salvo')}catch(e){toast(e&&e.code==='quota_exceeded'?'O armazenamento do painel está cheio.':'Não foi possível salvar. Tente de novo.')}
+  try{await save(col,id,obj);closeDrawer();toast('Salvo')}catch(e){falhou(e)}
 }
 
 async function pickImage(file){
@@ -735,7 +735,7 @@ document.addEventListener('click',async e=>{
   else if(a==='gall'){ui.gMes=ui.gMes?'':today().slice(0,7);render()}
   else if(a==='toggle'){ui.open[b.dataset.id]=!ui.open[b.dataset.id];render()}
   else if(a==='new'||a==='edit'){const k=b.dataset.kind,id=a==='edit'?b.dataset.id:null;({insumo:formInsumo,produto:formProduto,gasto:formGasto,pedido:formPedido,producao:()=>formProducao(),tarefa:formTarefa})[k](id)}
-  else if(a==='toggleTask'){const t=S.tarefas.find(x=>x.id===b.dataset.id);if(t){try{await save('tarefas',t.id,{...t,feito:!t.feito,feitoEm:t.feito?'':new Date().toISOString()});toast(t.feito?'Tarefa reaberta':'Tarefa concluída')}catch(_){toast('Não foi possível salvar.')}}}
+  else if(a==='toggleTask'){const t=S.tarefas.find(x=>x.id===b.dataset.id);if(t){try{await save('tarefas',t.id,{...t,feito:!t.feito,feitoEm:t.feito?'':new Date().toISOString()});toast(t.feito?'Tarefa reaberta':'Tarefa concluída')}catch(e){falhou(e)}}}
   else if(a==='limparFeitas'){
     if(armed!==b){b.dataset.lbl=b.textContent;b.textContent='Confirmar: apagar concluídas';b.classList.add('armed');armed=b;return}
     armed=null;let n=0;for(const t of S.tarefas.filter(t=>t.feito)){try{await remove('tarefas',t.id);n++}catch(_){}}toast(n+' tarefas apagadas')}
@@ -759,7 +759,7 @@ document.addEventListener('click',async e=>{
 });
 document.addEventListener('change',async e=>{
   const t=e.target;
-  if(t.dataset.act==='status'){const o=S.pedidos.find(x=>x.id===t.dataset.id);if(o){try{await save('pedidos',o.id,{...o,status:t.value});toast('Status: '+STATUS[t.value][0])}catch(_){toast('Não foi possível salvar.')}}return}
+  if(t.dataset.act==='status'){const o=S.pedidos.find(x=>x.id===t.dataset.id);if(o){try{await save('pedidos',o.id,{...o,status:t.value});toast('Status: '+STATUS[t.value][0])}catch(e){falhou(e)}}return}
   if(t.dataset.bind){ui[t.dataset.bind]=t.type==='checkbox'?t.checked:t.value;if(t.dataset.bind==='mes'&&!t.value)ui.mes=today().slice(0,7);saveUi();render();return}
   if(t.id==='f-img'){pickImage(t.files[0]);return}
   if(t.id==='f-restore'&&t.files[0]){let recs=[];try{recs=recordsFrom(JSON.parse(await t.files[0].text()))}catch(_){}t.value='';if(!recs.length){toast('Esse arquivo não parece um backup do painel.');return}try{await saveMany(recs);toast(recs.length+' registros restaurados')}catch(_){toast('Não foi possível restaurar o backup.')}return}
@@ -772,13 +772,23 @@ document.addEventListener('input',e=>{if(drawer&&drawer.contains(e.target)){updC
 document.addEventListener('submit',e=>{
   e.preventDefault();
   if(e.target.id==='dForm')submitDrawer();
-  if(e.target.id==='taskQuick'){const ti=$('#tq-titulo').value.trim();if(!ti)return;save('tarefas',newId(),{titulo:ti,prazo:$('#tq-prazo').value,prioridade:$('#tq-pri').value,etiqueta:ui.tTag||'',notas:'',feito:false,criadoEm:new Date().toISOString()}).then(()=>{toast('Tarefa adicionada');const i=$('#tq-titulo');if(i){i.value='';i.focus()}}).catch(()=>toast('Não foi possível salvar.'))}
-  if(e.target.id==='cfgForm'){const fd=Object.fromEntries(new FormData(e.target));saveConfig({...S.config,...fd}).then(()=>toast('Ajustes salvos')).catch(()=>toast('Não foi possível salvar.'))}
+  if(e.target.id==='taskQuick'){const ti=$('#tq-titulo').value.trim();if(!ti){toast('Escreva a tarefa antes de adicionar.');$('#tq-titulo').focus();return}save('tarefas',newId(),{titulo:ti,prazo:$('#tq-prazo').value,prioridade:$('#tq-pri').value,etiqueta:ui.tTag||'',notas:'',feito:false,criadoEm:new Date().toISOString()}).then(()=>{toast('Tarefa adicionada');const i=$('#tq-titulo');if(i){i.value='';i.focus()}}).catch(falhou)}
+  if(e.target.id==='cfgForm'){const fd=Object.fromEntries(new FormData(e.target));saveConfig({...S.config,...fd}).then(()=>toast('Ajustes salvos')).catch(falhou)}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&drawer)closeDrawer()});
 const tip=$('#tip');
 document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){tip.hidden=true;return}tip.innerHTML=t.dataset.tip;tip.hidden=false});
 document.addEventListener('mousemove',e=>{if(!tip.hidden){const x=Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8);tip.style.left=x+'px';tip.style.top=(e.clientY+14)+'px'}});
-let tt=0;function toast(m){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,2400)}
+let tt=0;function toast(m,ms=2400){const t=$('#toast');t.textContent=m;t.hidden=false;clearTimeout(tt);tt=setTimeout(()=>t.hidden=true,ms)}
+// Explica por que uma gravação falhou, em vez de uma mensagem genérica.
+function erroSalvar(e){
+  const c=e&&e.code,m=String(e&&e.message||'');
+  if(c==='23514'||m.includes('registros_colecao_check'))return 'O banco ainda não aceita esse tipo de registro. Rode de novo o supabase/schema.sql no Supabase.';
+  if(c==='42501'||c==='PGRST301'||/JWT|jwt/.test(m))return 'Sua sessão expirou ou não tem permissão. Saia e entre de novo.';
+  if(c==='quota_exceeded')return 'O armazenamento do painel está cheio.';
+  if(/Failed to fetch|NetworkError|network/i.test(m))return 'Sem conexão com o servidor. Confira a internet e tente de novo.';
+  return 'Não foi possível salvar'+(m?': '+m:'.');
+}
+const falhou=e=>{console.error(e);toast(erroSalvar(e),6000)};
 
 boot();
