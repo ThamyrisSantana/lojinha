@@ -3,15 +3,20 @@
 -- Pode rodar de novo sem problema: os comandos não duplicam nada.
 
 -- Todos os cadastros ficam numa tabela só. "colecao" diz o tipo
--- (insumos, produtos, gastos, pedidos, producoes, config) e "dados" guarda os campos.
+-- (insumos, produtos, gastos, pedidos, producoes, tarefas, config) e "dados" guarda os campos.
 create table if not exists public.registros (
   user_id       uuid        not null default auth.uid() references auth.users (id) on delete cascade,
-  colecao       text        not null check (colecao in ('insumos','produtos','gastos','pedidos','producoes','config')),
+  colecao       text        not null,
   id            text        not null check (id ~ '^[A-Za-z0-9_-]{1,64}$'),
   dados         jsonb       not null default '{}'::jsonb,
   atualizado_em timestamptz not null default now(),
   primary key (user_id, colecao, id)
 );
+
+-- Tipos de registro aceitos. Recriada a cada execução, para valer também em bancos já existentes.
+alter table public.registros drop constraint if exists registros_colecao_check;
+alter table public.registros add constraint registros_colecao_check
+  check (colecao in ('insumos','produtos','gastos','pedidos','producoes','tarefas','config'));
 
 -- Cada conta só enxerga e altera os próprios registros.
 alter table public.registros enable row level security;
