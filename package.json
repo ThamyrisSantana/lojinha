@@ -1,0 +1,12 @@
+{
+  "name": "painel-lojinha",
+  "version": "0.2.0",
+  "private": true,
+  "description": "Painel web da lojinha: preços, catálogo e impressão, insumos, gastos, pedidos e produção. Site estático + Supabase.",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

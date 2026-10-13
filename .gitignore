@@ -1,0 +1,10 @@
+node_modules/
+data/
+.netlify/
+.vercel/
+.claude/
+.env
+.env.*
+*.log
+.DS_Store
+Thumbs.db
