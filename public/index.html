@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#141110">
+<meta name="robots" content="noindex">
+<title>Painel da Lojinha</title>
+<link rel="icon" href="logo.webp" type="image/webp">
+<link rel="apple-touch-icon" href="logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Mono:wght@400;500&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<section class="login" id="login" hidden>
+  <form class="login-card" id="loginForm">
+    <div class="logo"><img src="logo.webp" alt=""></div>
+    <h1 id="loginTitle">Entrar no painel</h1>
+    <p id="loginHint">Use o e-mail e a senha cadastrados no Supabase.</p>
+    <label class="field" id="emailField"><span>E-mail</span><input type="email" id="lEmail" autocomplete="username" required></label>
+    <label class="field"><span id="lPassLbl">Senha</span><input type="password" id="lPass" autocomplete="current-password" required minlength="6"></label>
+    <button class="btn primary" type="submit" id="lBtn">Entrar</button>
+    <div class="login-msg" id="lMsg" role="status"></div>
+    <button class="link" type="button" id="lForgot">Esqueci minha senha</button>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="top">
+    <div class="top-in">
+      <div class="brand"><div class="logo"><img src="logo.webp" alt=""></div><b id="shopName">Minha lojinha</b></div>
+      <nav class="nav" id="nav" aria-label="Seções"></nav>
+      <div class="who">
+        <div class="store-state" id="storeState"><i></i><span>Conectando…</span></div>
+        <button class="btn sm" data-act="logout" id="logoutBtn" hidden>Sair</button>
+      </div>
+    </div>
+    <div class="demo-bar" id="demoBar" hidden>Modo demonstração: os dados ficam só neste navegador. Configure o Supabase em <span class="mono">config.js</span> para salvar na nuvem.</div>
+  </header>
+  <main><div class="wrap" id="view"></div></main>
+</div>
+
+<div id="drawerRoot"></div>
+<div id="tip" hidden></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
