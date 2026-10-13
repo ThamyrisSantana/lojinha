@@ -921,5 +921,58 @@
       ],
       "exemplo": true
     }
+  },
+  "tarefas": {
+    "t1": {
+      "titulo": "Imprimir bottons do pedido 1009",
+      "prazo": "2026-10-13",
+      "prioridade": "alta",
+      "etiqueta": "Produção",
+      "notas": "3 Gatinho Lunar + 2 blocos de notas.",
+      "feito": false,
+      "criadoEm": "2026-10-09T10:00:00Z",
+      "exemplo": true
+    },
+    "t2": {
+      "titulo": "Comprar argolas e chaveiros acrílicos",
+      "prazo": "2026-10-11",
+      "prioridade": "media",
+      "etiqueta": "Compras",
+      "notas": "",
+      "feito": false,
+      "criadoEm": "2026-10-08T10:00:00Z",
+      "exemplo": true
+    },
+    "t3": {
+      "titulo": "Postar a nova coleção de marcadores no Instagram",
+      "prazo": "2026-10-16",
+      "prioridade": "media",
+      "etiqueta": "Divulgação",
+      "notas": "",
+      "feito": false,
+      "criadoEm": "2026-10-10T10:00:00Z",
+      "exemplo": true
+    },
+    "t4": {
+      "titulo": "Emitir nota fiscal dos pedidos da feira",
+      "prazo": "",
+      "prioridade": "baixa",
+      "etiqueta": "Administrativo",
+      "notas": "",
+      "feito": false,
+      "criadoEm": "2026-10-11T10:00:00Z",
+      "exemplo": true
+    },
+    "t5": {
+      "titulo": "Enviar pedido 1008 pelos Correios",
+      "prazo": "2026-10-04",
+      "prioridade": "alta",
+      "etiqueta": "Pedidos",
+      "notas": "",
+      "feito": true,
+      "feitoEm": "2026-10-04T15:00:00Z",
+      "criadoEm": "2026-10-03T10:00:00Z",
+      "exemplo": true
+    }
   }
 }

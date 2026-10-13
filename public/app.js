@@ -21,11 +21,14 @@ const CAT_GASTO=['Insumo','Embalagem','Equipamento','Frete','Taxas e assinaturas
 const CANAIS=['Instagram','Shopee','Elo7','Site próprio','WhatsApp','Feira / evento','Mercado Livre','Etsy'];
 const STATUS={novo:['Novo','pink'],produzindo:['Produzindo','warn'],enviado:['Enviado','blue'],entregue:['Entregue','good'],cancelado:['Cancelado','']};
 const QUALIDADES=['Rascunho','Normal','Alta','Foto / máxima'];
+const PRIORIDADES={alta:['Alta','bad',3],media:['Média','warn',2],baixa:['Baixa','',1]};
+const ETIQUETAS=['Produção','Pedidos','Criação','Divulgação','Compras','Administrativo'];
+const addDays=(s,n)=>{const d=new Date(s+'T12:00:00');d.setDate(d.getDate()+n);return d.toISOString().slice(0,10)};
 const PAPEIS=['Couché fosco 250g','Couché brilho 250g','Fotográfico glossy 180g','Fotográfico matte 230g','Offset 180g','Canson 300g','Kraft 240g','Adesivo vinil','Adesivo papel'];
 
 /* ============ store: Supabase (nuvem) ou demonstração (navegador) ============ */
-const COLS=['insumos','produtos','gastos','pedidos','producoes'];
-const S={insumos:[],produtos:[],gastos:[],pedidos:[],producoes:[],config:{}};
+const COLS=['insumos','produtos','gastos','pedidos','producoes','tarefas'];
+const S={insumos:[],produtos:[],gastos:[],pedidos:[],producoes:[],tarefas:[],config:{}};
 const loaded={};
 const CFG=window.PAINEL_CONFIG||{};
 const BUCKET='imagens', TABLE='registros', DEMO_KEY='painel-lojinha-demo';
@@ -225,6 +228,7 @@ function resumoMes(k){
 /* ============ UI state ============ */
 const TABS=[
   ['visao','Visão geral','<path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/>'],
+  ['tarefas','Tarefas','<path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/>'],
   ['preco','Preços','<path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15.9V19h-2v-1.1c-1.7-.3-3-1.4-3.1-3h1.8c.1.9 1 1.5 2.3 1.5 1.4 0 2-.7 2-1.4 0-.8-.5-1.3-2.3-1.7-2-.5-3.4-1.3-3.4-3 0-1.4 1.1-2.4 2.7-2.7V6.5h2v1.1c1.6.4 2.6 1.6 2.6 3h-1.8c0-.9-.9-1.5-2-1.5-1.2 0-1.9.6-1.9 1.3 0 .7.6 1.1 2.3 1.5 1.9.5 3.4 1.2 3.4 3.2 0 1.4-1 2.5-2.6 2.8z"/>'],
   ['catalogo','Catálogo','<path d="M19 8H5a3 3 0 00-3 3v6h4v4h12v-4h4v-6a3 3 0 00-3-3zm-3 11H8v-5h8zm3-7a1 1 0 110-2 1 1 0 010 2zm-1-9H6v4h12z"/>'],
   ['insumos','Insumos','<path d="M20 6h-3V4a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zM9 4h6v2H9zm11 15H4V8h16z"/>'],
@@ -233,15 +237,15 @@ const TABS=[
   ['producao','Produção','<path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>'],
   ['ajustes','Ajustes','<path d="M19.4 13a7.5 7.5 0 000-2l2.1-1.6-2-3.5-2.5 1a7.3 7.3 0 00-1.7-1L15 3h-4l-.3 2.9a7.3 7.3 0 00-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 000 2l-2.1 1.6 2 3.5 2.5-1a7.3 7.3 0 001.7 1L11 21h4l.3-2.9a7.3 7.3 0 001.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z"/>'],
 ];
-const ui=Object.assign({tab:'visao',mes:today().slice(0,7),gMes:today().slice(0,7),pStatus:'abertos',pCanal:'',filaSo:false,open:{}},lsGet('painel-ui',{}));
+const ui=Object.assign({tFiltro:'pendentes',tTag:'',tab:'visao',mes:today().slice(0,7),gMes:today().slice(0,7),pStatus:'abertos',pCanal:'',filaSo:false,open:{}},lsGet('painel-ui',{}));
 if(/^#[a-z]+$/.test(location.hash)&&TABS.some(t=>'#'+t[0]===location.hash))ui.tab=location.hash.slice(1);
-const saveUi=()=>lsSet('painel-ui',{tab:ui.tab,filaSo:ui.filaSo,pStatus:ui.pStatus});
+const saveUi=()=>lsSet('painel-ui',{tab:ui.tab,filaSo:ui.filaSo,pStatus:ui.pStatus,tFiltro:ui.tFiltro});
 
 let raf=0; function schedule(){if(!raf)raf=requestAnimationFrame(()=>{raf=0;render()})}
 
 function renderNav(){
-  const abertos=S.pedidos.filter(o=>o.status==='novo'||o.status==='produzindo').length;
-  $('#nav').innerHTML=TABS.map(([k,l,ic])=>`<button data-act="tab" data-v="${k}" ${ui.tab===k?'aria-current="page"':''}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ic}</svg><span class="lbl">${l}</span>${k==='pedidos'&&abertos?`<span class="badge">${abertos}</span>`:''}</button>`).join('');
+  const badge={pedidos:S.pedidos.filter(o=>o.status==='novo'||o.status==='produzindo').length,tarefas:tarefasUrgentes().length};
+  $('#nav').innerHTML=TABS.map(([k,l,ic])=>`<button data-act="tab" data-v="${k}" ${ui.tab===k?'aria-current="page"':''}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ic}</svg><span class="lbl">${l}</span>${badge[k]?`<span class="badge">${badge[k]}</span>`:''}</button>`).join('');
   $('#shopName').textContent=cfg().nomeLoja||'Minha lojinha';
   const st=$('#storeState');
   st.className='store-state '+(mode==='nuvem'?'ok':mode==='demo'?'demo':'');
@@ -255,7 +259,7 @@ function render(){
   const ready=COLS.every(c=>loaded[c]);
   const v=$('#view');
   if(!ready){v.innerHTML=`<div class="empty"><b>Abrindo o painel…</b><span>Carregando produtos, insumos, gastos e pedidos.</span></div>`;return}
-  const fn={visao:vVisao,preco:vPreco,catalogo:vCatalogo,insumos:vInsumos,gastos:vGastos,pedidos:vPedidos,producao:vProducao,ajustes:vAjustes}[ui.tab]||vVisao;
+  const fn={tarefas:vTarefas,visao:vVisao,preco:vPreco,catalogo:vCatalogo,insumos:vInsumos,gastos:vGastos,pedidos:vPedidos,producao:vProducao,ajustes:vAjustes}[ui.tab]||vVisao;
   const active=document.activeElement&&document.activeElement.id;
   v.innerHTML=fn();
   if(active&&v.querySelector('#'+CSS.escape(active)))v.querySelector('#'+CSS.escape(active)).focus();
@@ -277,15 +281,17 @@ function vVisao(){
   const step=niceStep(max), top=Math.ceil(max/step)*step;
   const W=600,H=230,L=58,B=200,T=14,cw=(W-L-8)/6,bw=Math.min(26,cw/3.2);
   const y=v=>B-(v/top)*(B-T);
-  const bar=(x,v,col)=>{const h=B-y(v);if(h<=0)return'';const r=Math.min(4,h);return `<path d="M${x},${B} L${x},${y(v)+r} Q${x},${y(v)} ${x+r},${y(v)} L${x+bw-r},${y(v)} Q${x+bw},${y(v)} ${x+bw},${y(v)+r} L${x+bw},${B} Z" fill="${col}"/>`};
+  const bar=(x,v,col)=>{const h=B-y(v);if(h<=0)return'';const r=Math.min(bw/2,h);return `<path d="M${x},${B} L${x},${y(v)+r} Q${x},${y(v)} ${x+r},${y(v)} L${x+bw-r},${y(v)} Q${x+bw},${y(v)} ${x+bw},${y(v)+r} L${x+bw},${B} Z" fill="${col}"/>`};
   let ticks='';for(let v=0;v<=top+1e-9;v+=step)ticks+=`<line class="grid" x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${fmtK(v)}</text>`;
   const bars=data.map((d,i)=>{const cx=L+cw*i+cw/2;return bar(cx-bw-1,d.vendas,'var(--s1)')+bar(cx+1,d.gastos,'var(--s2)')+
-    `<text x="${cx}" y="${B+18}" text-anchor="middle" ${d.k===ui.mes?'style="fill:var(--ink);font-weight:500"':''}>${mesLabel(d.k)}</text>`+
+    `<text x="${cx}" y="${B+18}" text-anchor="middle" ${d.k===ui.mes?'style="fill:var(--ink);font-weight:800"':''}>${mesLabel(d.k)}</text>`+
     `<rect class="hit" x="${L+cw*i+2}" y="${T}" width="${cw-4}" height="${B-T}" data-tip="<b>${mesLabel(d.k)}</b><br>Vendas: ${brl(d.vendas)}<br>Gastos: ${brl(d.gastos)}<br>Saldo: ${brl(d.saldo)}"/>`}).join('');
   // alertas
   const al=[];
   S.insumos.forEach(i=>{const e=movIns(i).estoque,[l,c]=insStatus(i,e);if(c!=='good')al.push(`<div class="alert"><span class="chip ${c}"><i></i>${l}</span><div><b>${esc(i.nome)}</b> <span class="tsub">· ${fmt(e)} ${esc(i.unidade||'un')} em estoque${num(i.estoqueMin)?`, mínimo ${fmt(i.estoqueMin)}`:''}</span></div></div>`)});
   S.pedidos.filter(o=>o.status==='novo'||o.status==='produzindo').sort((a,b)=>(a.data||'').localeCompare(b.data||'')).forEach(o=>al.push(`<div class="alert"><span class="chip ${STATUS[o.status][1]}"><i></i>${STATUS[o.status][0]}</span><div><b>Pedido ${esc(o.numero||'s/ nº')}</b> <span class="tsub">· ${esc(o.cliente||'')} · ${esc(o.canal||'')} · ${dataBR(o.data)}</span></div><button class="btn sm ghost" data-act="edit" data-kind="pedido" data-id="${o.id}">Abrir</button></div>`));
+  const urg=tarefasUrgentes();
+  if(urg.length){const atr=urg.filter(t=>t.prazo<today()).length;al.unshift(`<div class="alert"><span class="chip ${atr?'bad':'pink'}"><i></i>${atr?'Atrasada':'Hoje'}</span><div><b>${urg.length} tarefa${urg.length>1?'s':''} para fazer${atr?`, ${atr} atrasada${atr>1?'s':''}`:' hoje'}</b> <span class="tsub">· ${urg.slice(0,3).map(t=>esc(t.titulo)).join(', ')}${urg.length>3?'…':''}</span></div><button class="btn sm ghost" data-act="tab" data-v="tarefas">Ver</button></div>`)}
   const fila=S.produtos.filter(p=>num(p.qtdImprimir)>0);
   if(fila.length)al.push(`<div class="alert"><span class="chip blue"><i></i>Imprimir</span><div><b>${fila.reduce((a,p)=>a+num(p.qtdImprimir),0)} peças na fila</b> <span class="tsub">· ${fila.map(p=>esc(p.nome)).join(', ')}</span></div><button class="btn sm ghost" data-act="tab" data-v="catalogo">Ver fila</button></div>`);
   // mais vendidos & canais
@@ -295,8 +301,15 @@ function vVisao(){
   const topC=Object.entries(canal).sort((a,b)=>b[1]-a[1]), mc=Math.max(1,...topC.map(x=>x[1]));
   const vazio=COLS.every(c=>!S[c].length);
   return `${vazio?`<section class="welcome"><div class="logo"><img src="logo.webp" alt=""></div><div><h2>Boas-vindas ao painel</h2><p>Comece cadastrando seus insumos (papéis, bases de botton, embalagens) e depois os produtos. Se preferir, carregue dados de exemplo para ver tudo funcionando e apague depois em Ajustes.</p><div class="tools"><button class="btn primary" data-act="new" data-kind="insumo">+ Primeiro insumo</button><button class="btn" data-act="exemplos">Carregar exemplos</button></div></div></section>`:''}
-  <div class="head"><div><h1>Visão geral</h1><p>Como a loja está indo no mês: vendas, gastos e o que precisa da sua atenção.</p></div>
+  <div class="head"><span class="spark" style="width:18px;height:18px;right:34%;top:-4px;color:var(--lime)" aria-hidden="true"></span><span class="burst" style="width:40px;height:40px;right:24%;top:6px;color:var(--butter);opacity:.9" aria-hidden="true"></span><span class="spark" style="width:12px;height:12px;right:20%;top:52px;color:var(--lilac)" aria-hidden="true"></span>
+    <div><h1>Como a <em>lojinha</em> está <em class="lime">indo</em></h1><p>Vendas, gastos e o que precisa da sua atenção no mês.</p></div>
     <div class="tools"><button class="icon-btn" data-act="mes" data-d="-1" aria-label="Mês anterior">‹</button><input type="month" id="fMes" value="${ui.mes}" data-bind="mes" aria-label="Mês"><button class="icon-btn" data-act="mes" data-d="1" aria-label="Próximo mês">›</button></div></div>
+  <nav class="quick" aria-label="Atalhos">
+    <button class="qa c2" data-act="new" data-kind="pedido"><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 100 4 2 2 0 000-4zM1 2v2h2l3.6 7.6L5.2 14A2 2 0 007 17h12v-2H7.4l1.1-2h7.5a2 2 0 001.7-1l3.6-6.5A1 1 0 0020.4 4H5.2l-.9-2zm16 16a2 2 0 100 4 2 2 0 000-4z"/></svg></i>Novo pedido</button>
+    <button class="qa c1" data-act="new" data-kind="gasto"><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2h-9a2 2 0 01-2-2V9a2 2 0 012-2zm-9 2v6h10V9zm4 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></i>Novo gasto</button>
+    <button class="qa c3" data-act="new" data-kind="producao"><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 8H5a3 3 0 00-3 3v6h4v4h12v-4h4v-6a3 3 0 00-3-3zm-3 11H8v-5h8zm3-7a1 1 0 110-2 1 1 0 010 2zm-1-9H6v4h12z"/></svg></i>Registrar lote</button>
+    <button class="qa c4" data-act="new" data-kind="tarefa"><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg></i>Nova tarefa</button>
+  </nav>
   <div class="kpis">
     <div class="kpi"><span>Vendas</span><b class="num">${brl(r.vendas)}</b><small>${delta(r.vendas,ant.vendas)}</small></div>
     <div class="kpi"><span>Recebido líquido</span><b class="num">${brl(r.liquido)}</b><small>depois de taxas e envio</small></div>
@@ -444,6 +457,55 @@ function vProducao(){
   ${ls.length?`<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Produto</th><th class="r">Peças</th><th>Insumos usados</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
   <div class="note">Excluir um lote devolve os insumos ao estoque e tira as peças prontas.</div>`
   :empty('Nenhum lote registrado','Quando imprimir ou montar peças, registre aqui para o estoque de insumos se atualizar sozinho.','new','+ Registrar lote')}`;
+}
+
+function tarefasUrgentes(){const h=today();return S.tarefas.filter(t=>!t.feito&&t.prazo&&t.prazo<=h).sort((a,b)=>a.prazo.localeCompare(b.prazo))}
+function prazoLabel(p){if(!p)return'';const h=today();if(p===h)return'Hoje';if(p===addDays(h,1))return'Amanhã';if(p===addDays(h,-1))return'Ontem';const [y,m,d]=p.split('-');return d+'/'+m+(y!==h.slice(0,4)?'/'+y.slice(2):'')}
+function taskItem(t){
+  const h=today(),atrasada=!t.feito&&t.prazo&&t.prazo<h,pr=PRIORIDADES[t.prioridade]||PRIORIDADES.media;
+  return `<div class="task${t.feito?' done':''}">
+    <button type="button" class="tcheck" data-act="toggleTask" data-id="${t.id}" aria-pressed="${!!t.feito}" aria-label="${t.feito?'Reabrir':'Concluir'}: ${esc(t.titulo)}"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg></button>
+    <div class="tmain"><div class="ttitle">${esc(t.titulo)}${exChip(t)}</div>
+      <div class="tmeta">${t.prazo?`<span class="chip ${atrasada?'bad':t.prazo===h?'pink':''}">${prazoLabel(t.prazo)}</span>`:''}${t.prioridade&&t.prioridade!=='media'?`<span class="chip ${pr[1]}">${pr[0]}</span>`:''}${t.etiqueta?`<span class="chip blue">${esc(t.etiqueta)}</span>`:''}${t.feito&&t.feitoEm?`<span class="tsub">feita em ${dataBR(t.feitoEm.slice(0,10))}</span>`:''}</div>
+      ${t.notas?`<div class="tnotes">${esc(t.notas)}</div>`:''}</div>
+    <div class="row-actions">${editBtn('tarefa',t.id)}</div></div>`;
+}
+function vTarefas(){
+  const h=today(),em7=addDays(h,7);
+  let ts=S.tarefas;if(ui.tTag)ts=ts.filter(t=>t.etiqueta===ui.tTag);
+  const pend=ts.filter(t=>!t.feito),feitas=ts.filter(t=>t.feito).sort((a,b)=>(b.feitoEm||'').localeCompare(a.feitoEm||''));
+  const ord=(a,b)=>(a.prazo||'9999').localeCompare(b.prazo||'9999')||(PRIORIDADES[b.prioridade]||PRIORIDADES.media)[2]-(PRIORIDADES[a.prioridade]||PRIORIDADES.media)[2]||(a.criadoEm||'').localeCompare(b.criadoEm||'');
+  const grupos=[['Atrasadas',t=>t.prazo&&t.prazo<h],['Hoje',t=>t.prazo===h],['Próximos 7 dias',t=>t.prazo>h&&t.prazo<=em7],['Mais para frente',t=>t.prazo>em7],['Sem prazo',t=>!t.prazo]];
+  const blocoP=grupos.map(([n,f])=>{const g=pend.filter(f).sort(ord);return g.length?`<section class="tgroup"><h2>${n} <small>${g.length}</small></h2><div class="tlist">${g.map(taskItem).join('')}</div></section>`:''}).join('');
+  const blocoF=feitas.length?`<section class="tgroup"><h2>Concluídas <small>${feitas.length}</small><button class="btn sm ghost danger" data-act="limparFeitas">Apagar concluídas</button></h2><div class="tlist">${feitas.map(taskItem).join('')}</div></section>`:'';
+  const tags=[...new Set([...ETIQUETAS,...S.tarefas.map(t=>t.etiqueta).filter(Boolean)])];
+  const corpo=ui.tFiltro==='feitas'?blocoF:ui.tFiltro==='todas'?blocoP+blocoF:blocoP;
+  const vazioTxt=!S.tarefas.length?empty('Nenhuma tarefa ainda','Anote o que precisa fazer: imprimir um lote, responder um cliente, comprar papel, postar no Instagram.')
+    :empty(ui.tFiltro==='feitas'?'Nenhuma tarefa concluída':'Nada pendente por aqui','Use o campo acima para adicionar uma tarefa.');
+  return `
+  <div class="head"><span class="spark" style="width:16px;height:16px;right:30%;top:0;color:var(--pink)" aria-hidden="true"></span>
+    <div><h1>Lista de <em class="lime">tarefas</em></h1><p>${pend.length} pendente${pend.length===1?'':'s'}${tarefasUrgentes().length?` · ${tarefasUrgentes().length} para hoje ou atrasada${tarefasUrgentes().length===1?'':'s'}`:''}. Clique no círculo para concluir.</p></div>
+    <div class="tools"><select id="fTFiltro" data-bind="tFiltro" aria-label="Mostrar"><option value="pendentes" ${ui.tFiltro==='pendentes'?'selected':''}>Pendentes</option><option value="feitas" ${ui.tFiltro==='feitas'?'selected':''}>Concluídas</option><option value="todas" ${ui.tFiltro==='todas'?'selected':''}>Todas</option></select>
+    <select id="fTTag" data-bind="tTag" aria-label="Etiqueta"><option value="">Todas as etiquetas</option>${tags.map(t=>`<option ${ui.tTag===t?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
+  <form class="quickadd" id="taskQuick" autocomplete="off">
+    <input id="tq-titulo" placeholder="Nova tarefa… ex.: imprimir bottons do pedido 1042" aria-label="Nova tarefa" maxlength="200">
+    <input type="date" id="tq-prazo" aria-label="Prazo">
+    <select id="tq-pri" aria-label="Prioridade"><option value="media">Prioridade média</option><option value="alta">Prioridade alta</option><option value="baixa">Prioridade baixa</option></select>
+    <button class="btn primary" type="submit">Adicionar</button>
+  </form>
+  ${corpo.trim()?corpo:vazioTxt}`;
+}
+function formTarefa(id){
+  const t=id?S.tarefas.find(x=>x.id===id):{prioridade:'media',etiqueta:ui.tTag||''};
+  openDrawer(id?'Editar tarefa':'Nova tarefa','tarefa',id,`
+  <fieldset><div class="fg">
+    ${F('titulo','Tarefa',t.titulo,{cls:'full',req:true,ph:'Ex.: comprar argolas para chaveiro'})}
+    ${F('prazo','Prazo',t.prazo,{type:'date'})}
+    ${F('prioridade','Prioridade',t.prioridade,{type:'select',opts:Object.entries(PRIORIDADES).map(([k,[l]])=>[k,l])})}
+    ${F('etiqueta','Etiqueta',t.etiqueta,{list:'dlEtq',ph:'Ex.: Produção'})}
+    <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="feito" id="f-feito" ${t.feito?'checked':''}> Concluída</label>
+    ${F('notas','Notas',t.notas,{type:'textarea',cls:'full'})}
+  </div></fieldset>${dl('dlEtq',ETIQUETAS)}`,footDel('tarefas',id));
 }
 
 function vAjustes(){
@@ -635,9 +697,10 @@ function updProd(){
 
 async function submitDrawer(){
   const kind=drawer.dataset.kind, id=drawer.dataset.id||newId(), fd=Object.fromEntries(new FormData(drawer));
-  const prev=(drawer.dataset.id&&{insumo:insById,produto:prodById,gasto:x=>S.gastos.find(g=>g.id===x),pedido:x=>S.pedidos.find(o=>o.id===x)}[kind]?.(id))||{};
+  const prev=(drawer.dataset.id&&{insumo:insById,produto:prodById,gasto:x=>S.gastos.find(g=>g.id===x),pedido:x=>S.pedidos.find(o=>o.id===x),tarefa:x=>S.tarefas.find(t=>t.id===x)}[kind]?.(id))||{};
   let col,obj;
   if(kind==='insumo'){col='insumos';obj={...fd}}
+  else if(kind==='tarefa'){col='tarefas';obj={...fd,feito:!!fd.feito};if(obj.feito&&!prev.feito)obj.feitoEm=new Date().toISOString();else if(obj.feito)obj.feitoEm=prev.feitoEm||'';else obj.feitoEm=''}
   else if(kind==='produto'){col='produtos';obj={...fd,insumos:readRows('ins').filter(r=>r.insumoId)}}
   else if(kind==='gasto'){col='gastos';obj={...fd};if(!obj.insumoId)obj.qtd=''}
   else if(kind==='pedido'){col='pedidos';obj={...fd,itens:readRows('ped').filter(r=>r.produtoId)}}
@@ -665,13 +728,17 @@ let armed=null;
 document.addEventListener('click',async e=>{
   const b=e.target.closest('[data-act]');if(!b||b.tagName==='SELECT')return;
   const a=b.dataset.act;
-  if(a!=='del'&&a!=='limparEx'&&armed){armed.classList.remove('armed');armed.textContent=armed.dataset.lbl;armed=null}
+  if(a!=='del'&&a!=='limparEx'&&a!=='limparFeitas'&&armed){armed.classList.remove('armed');armed.textContent=armed.dataset.lbl;armed=null}
   if(a==='tab'){ui.tab=b.dataset.v;saveUi();try{history.replaceState(null,'','#'+ui.tab)}catch(_){}render();window.scrollTo(0,0)}
   else if(a==='mes'){ui.mes=shiftMonth(ui.mes,+b.dataset.d);render()}
   else if(a==='gmes'){ui.gMes=shiftMonth(ui.gMes||today().slice(0,7),+b.dataset.d);render()}
   else if(a==='gall'){ui.gMes=ui.gMes?'':today().slice(0,7);render()}
   else if(a==='toggle'){ui.open[b.dataset.id]=!ui.open[b.dataset.id];render()}
-  else if(a==='new'||a==='edit'){const k=b.dataset.kind,id=a==='edit'?b.dataset.id:null;({insumo:formInsumo,produto:formProduto,gasto:formGasto,pedido:formPedido,producao:()=>formProducao()})[k](id)}
+  else if(a==='new'||a==='edit'){const k=b.dataset.kind,id=a==='edit'?b.dataset.id:null;({insumo:formInsumo,produto:formProduto,gasto:formGasto,pedido:formPedido,producao:()=>formProducao(),tarefa:formTarefa})[k](id)}
+  else if(a==='toggleTask'){const t=S.tarefas.find(x=>x.id===b.dataset.id);if(t){try{await save('tarefas',t.id,{...t,feito:!t.feito,feitoEm:t.feito?'':new Date().toISOString()});toast(t.feito?'Tarefa reaberta':'Tarefa concluída')}catch(_){toast('Não foi possível salvar.')}}}
+  else if(a==='limparFeitas'){
+    if(armed!==b){b.dataset.lbl=b.textContent;b.textContent='Confirmar: apagar concluídas';b.classList.add('armed');armed=b;return}
+    armed=null;let n=0;for(const t of S.tarefas.filter(t=>t.feito)){try{await remove('tarefas',t.id);n++}catch(_){}}toast(n+' tarefas apagadas')}
   else if(a==='comprar'){const i=insById(b.dataset.id);formGasto(null,{insumoId:i.id,descricao:i.nome,loja:i.fornecedor||'',categoria:i.categoria==='Embalagem'?'Embalagem':'Insumo'})}
   else if(a==='produzir'){formProducao(b.dataset.id)}
   else if(a==='close'){closeDrawer()}
@@ -705,6 +772,7 @@ document.addEventListener('input',e=>{if(drawer&&drawer.contains(e.target)){updC
 document.addEventListener('submit',e=>{
   e.preventDefault();
   if(e.target.id==='dForm')submitDrawer();
+  if(e.target.id==='taskQuick'){const ti=$('#tq-titulo').value.trim();if(!ti)return;save('tarefas',newId(),{titulo:ti,prazo:$('#tq-prazo').value,prioridade:$('#tq-pri').value,etiqueta:ui.tTag||'',notas:'',feito:false,criadoEm:new Date().toISOString()}).then(()=>{toast('Tarefa adicionada');const i=$('#tq-titulo');if(i){i.value='';i.focus()}}).catch(()=>toast('Não foi possível salvar.'))}
   if(e.target.id==='cfgForm'){const fd=Object.fromEntries(new FormData(e.target));saveConfig({...S.config,...fd}).then(()=>toast('Ajustes salvos')).catch(()=>toast('Não foi possível salvar.'))}
 });
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&drawer)closeDrawer()});
