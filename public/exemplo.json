@@ -1,0 +1,925 @@
+{
+  "versao": 1,
+  "config": {
+    "nomeLoja": "Minha lojinha",
+    "valorHora": "20",
+    "margem": "100",
+    "taxa": "12",
+    "perda": "5"
+  },
+  "insumos": {
+    "papelCouche": {
+      "nome": "Papel couché brilho 250g A4",
+      "categoria": "Papel",
+      "unidade": "folha",
+      "custoManual": "0.9",
+      "estoqueInicial": "10",
+      "estoqueMin": "20",
+      "fornecedor": "Papelaria Central",
+      "exemplo": true
+    },
+    "kitBotton": {
+      "nome": "Kit botton 38mm (base + capa + mylar)",
+      "categoria": "Botton",
+      "unidade": "un",
+      "custoManual": "0.45",
+      "estoqueInicial": "0",
+      "estoqueMin": "50",
+      "fornecedor": "Shopee",
+      "exemplo": true
+    },
+    "papelFoto": {
+      "nome": "Papel fotográfico matte 230g A4",
+      "categoria": "Papel",
+      "unidade": "folha",
+      "custoManual": "1.6",
+      "estoqueInicial": "5",
+      "estoqueMin": "10",
+      "exemplo": true
+    },
+    "argola": {
+      "nome": "Argola + corrente para chaveiro",
+      "categoria": "Chaveiro",
+      "unidade": "un",
+      "custoManual": "0.35",
+      "estoqueInicial": "0",
+      "estoqueMin": "20",
+      "exemplo": true
+    },
+    "acrilico": {
+      "nome": "Chaveiro acrílico 5cm",
+      "categoria": "Chaveiro",
+      "unidade": "un",
+      "custoManual": "1.2",
+      "estoqueInicial": "0",
+      "estoqueMin": "15",
+      "exemplo": true
+    },
+    "saquinho": {
+      "nome": "Saquinho celofane 10x15",
+      "categoria": "Embalagem",
+      "unidade": "un",
+      "custoManual": "0.08",
+      "estoqueInicial": "40",
+      "estoqueMin": "50",
+      "exemplo": true
+    },
+    "tinta": {
+      "nome": "Tinta Epson (refil)",
+      "categoria": "Tinta",
+      "unidade": "ml",
+      "custoManual": "0.6",
+      "estoqueInicial": "70",
+      "estoqueMin": "60",
+      "exemplo": true
+    },
+    "offset": {
+      "nome": "Papel offset 90g A4",
+      "categoria": "Papel",
+      "unidade": "folha",
+      "custoManual": "0.05",
+      "estoqueInicial": "0",
+      "estoqueMin": "100",
+      "exemplo": true
+    },
+    "kraft": {
+      "nome": "Cartão kraft 240g A4",
+      "categoria": "Papel",
+      "unidade": "folha",
+      "custoManual": "0.7",
+      "estoqueInicial": "0",
+      "estoqueMin": "10",
+      "exemplo": true
+    }
+  },
+  "produtos": {
+    "botton": {
+      "nome": "Botton Gatinho Lunar 38mm",
+      "categoria": "Botton",
+      "sku": "BT-001",
+      "tempoMin": "4",
+      "custoExtra": "",
+      "margem": "",
+      "taxa": "",
+      "preco": "8.90",
+      "qtdImprimir": "24",
+      "tamanho": "38mm",
+      "pecasFolha": "12",
+      "papel": "Couché brilho 250g",
+      "qualidade": "Alta",
+      "densidade": "+1",
+      "impressora": "Epson L3250",
+      "brilho": "0",
+      "contraste": "1",
+      "saturacao": "2",
+      "obsImpressao": "Imprimir com sangria de 3mm.",
+      "estoqueInicial": "6",
+      "insumos": [
+        {
+          "insumoId": "papelCouche",
+          "qtd": "1",
+          "rende": "12"
+        },
+        {
+          "insumoId": "kitBotton",
+          "qtd": "1",
+          "rende": "1"
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": "1",
+          "rende": "1"
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": "0.3",
+          "rende": "1"
+        }
+      ],
+      "exemplo": true
+    },
+    "print": {
+      "nome": "Print A5 Floresta Encantada",
+      "categoria": "Print",
+      "sku": "PR-004",
+      "tempoMin": "6",
+      "custoExtra": "0.5",
+      "margem": "",
+      "taxa": "",
+      "preco": "",
+      "qtdImprimir": "0",
+      "tamanho": "A5",
+      "pecasFolha": "2",
+      "papel": "Fotográfico matte 230g",
+      "qualidade": "Foto / máxima",
+      "densidade": "média",
+      "impressora": "Epson L3250",
+      "brilho": "-1",
+      "contraste": "0",
+      "saturacao": "1",
+      "obsImpressao": "Deixar secar 10 min antes de embalar.",
+      "estoqueInicial": "4",
+      "insumos": [
+        {
+          "insumoId": "papelFoto",
+          "qtd": "1",
+          "rende": "2"
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": "1",
+          "rende": "1"
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": "1.5",
+          "rende": "1"
+        }
+      ],
+      "exemplo": true
+    },
+    "marcador": {
+      "nome": "Marcador de página Cogumelos",
+      "categoria": "Marcador",
+      "sku": "MK-002",
+      "tempoMin": "3",
+      "custoExtra": "",
+      "margem": "120",
+      "taxa": "",
+      "preco": "",
+      "qtdImprimir": "30",
+      "tamanho": "5x18cm",
+      "pecasFolha": "6",
+      "papel": "Couché brilho 250g",
+      "qualidade": "Alta",
+      "densidade": "+1",
+      "impressora": "Epson L3250",
+      "brilho": "0",
+      "contraste": "0",
+      "saturacao": "1",
+      "obsImpressao": "",
+      "estoqueInicial": "0",
+      "insumos": [
+        {
+          "insumoId": "papelCouche",
+          "qtd": "1",
+          "rende": "6"
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": "1",
+          "rende": "1"
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": "0.4",
+          "rende": "1"
+        }
+      ],
+      "exemplo": true
+    },
+    "chaveiro": {
+      "nome": "Chaveiro acrílico Sapinho",
+      "categoria": "Chaveiro",
+      "sku": "CH-001",
+      "tempoMin": "10",
+      "custoExtra": "",
+      "margem": "",
+      "taxa": "",
+      "preco": "22.90",
+      "qtdImprimir": "0",
+      "tamanho": "5cm",
+      "pecasFolha": "8",
+      "papel": "Couché brilho 250g",
+      "qualidade": "Alta",
+      "densidade": "+1",
+      "impressora": "Epson L3250",
+      "brilho": "0",
+      "contraste": "0",
+      "saturacao": "0",
+      "obsImpressao": "",
+      "estoqueInicial": "2",
+      "insumos": [
+        {
+          "insumoId": "acrilico",
+          "qtd": "1",
+          "rende": "1"
+        },
+        {
+          "insumoId": "argola",
+          "qtd": "1",
+          "rende": "1"
+        },
+        {
+          "insumoId": "papelCouche",
+          "qtd": "1",
+          "rende": "8"
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": "1",
+          "rende": "1"
+        }
+      ],
+      "exemplo": true
+    },
+    "bloco": {
+      "nome": "Bloco de notas A6 Lua",
+      "categoria": "Bloco de notas",
+      "sku": "BL-001",
+      "tempoMin": "15",
+      "custoExtra": "",
+      "margem": "",
+      "taxa": "",
+      "preco": "",
+      "qtdImprimir": "8",
+      "tamanho": "A6, 50 folhas",
+      "pecasFolha": "4",
+      "papel": "Offset 90g (miolo) + kraft (capa)",
+      "qualidade": "Normal",
+      "densidade": "",
+      "impressora": "Epson L3250",
+      "brilho": "",
+      "contraste": "",
+      "saturacao": "",
+      "obsImpressao": "Capa em qualidade Alta, miolo em Normal.",
+      "estoqueInicial": "0",
+      "insumos": [
+        {
+          "insumoId": "offset",
+          "qtd": "50",
+          "rende": "4"
+        },
+        {
+          "insumoId": "kraft",
+          "qtd": "1",
+          "rende": "4"
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": "0.5",
+          "rende": "1"
+        }
+      ],
+      "exemplo": true
+    }
+  },
+  "gastos": {
+    "g1": {
+      "data": "2026-08-03",
+      "descricao": "Couché brilho 250g (pacote 50 folhas)",
+      "categoria": "Insumo",
+      "loja": "Papelaria Central",
+      "insumoId": "papelCouche",
+      "qtd": "50",
+      "valor": "42",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g2": {
+      "data": "2026-08-03",
+      "descricao": "Kit botton 38mm (100 un)",
+      "categoria": "Insumo",
+      "loja": "Shopee",
+      "insumoId": "kitBotton",
+      "qtd": "100",
+      "valor": "39.9",
+      "frete": "12.5",
+      "nf": "",
+      "exemplo": true
+    },
+    "g3": {
+      "data": "2026-08-10",
+      "descricao": "Saquinhos celofane 10x15 (200 un)",
+      "categoria": "Embalagem",
+      "loja": "Shopee",
+      "insumoId": "saquinho",
+      "qtd": "200",
+      "valor": "14.9",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g4": {
+      "data": "2026-08-15",
+      "descricao": "Máquina de botton 38mm",
+      "categoria": "Equipamento",
+      "loja": "Mercado Livre",
+      "insumoId": "",
+      "qtd": "",
+      "valor": "289",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g5": {
+      "data": "2026-09-02",
+      "descricao": "Papel fotográfico matte (20 folhas)",
+      "categoria": "Insumo",
+      "loja": "Kalunga",
+      "insumoId": "papelFoto",
+      "qtd": "20",
+      "valor": "32",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g6": {
+      "data": "2026-09-02",
+      "descricao": "Refil de tinta Epson (4 cores)",
+      "categoria": "Insumo",
+      "loja": "Kalunga",
+      "insumoId": "tinta",
+      "qtd": "280",
+      "valor": "159.6",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g7": {
+      "data": "2026-09-12",
+      "descricao": "Chaveiros acrílicos 5cm (30 un)",
+      "categoria": "Insumo",
+      "loja": "AliExpress",
+      "insumoId": "acrilico",
+      "qtd": "30",
+      "valor": "33",
+      "frete": "9",
+      "nf": "",
+      "exemplo": true
+    },
+    "g8": {
+      "data": "2026-09-12",
+      "descricao": "Argolas com corrente (50 un)",
+      "categoria": "Insumo",
+      "loja": "AliExpress",
+      "insumoId": "argola",
+      "qtd": "50",
+      "valor": "15",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g9": {
+      "data": "2026-09-20",
+      "descricao": "Anúncio impulsionado Instagram",
+      "categoria": "Marketing",
+      "loja": "Instagram",
+      "insumoId": "",
+      "qtd": "",
+      "valor": "30",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g10": {
+      "data": "2026-10-01",
+      "descricao": "Papel offset 90g (resma 500)",
+      "categoria": "Insumo",
+      "loja": "Kalunga",
+      "insumoId": "offset",
+      "qtd": "500",
+      "valor": "27.9",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g11": {
+      "data": "2026-10-01",
+      "descricao": "Cartão kraft 240g (20 folhas)",
+      "categoria": "Insumo",
+      "loja": "Kalunga",
+      "insumoId": "kraft",
+      "qtd": "20",
+      "valor": "16",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g12": {
+      "data": "2026-10-05",
+      "descricao": "Mesa na Feira Criativa de outubro",
+      "categoria": "Taxas e assinaturas",
+      "loja": "Feira Criativa",
+      "insumoId": "",
+      "qtd": "",
+      "valor": "80",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    },
+    "g13": {
+      "data": "2026-10-08",
+      "descricao": "Couché brilho 250g (pacote 50 folhas)",
+      "categoria": "Insumo",
+      "loja": "Papelaria Central",
+      "insumoId": "papelCouche",
+      "qtd": "50",
+      "valor": "44",
+      "frete": "",
+      "nf": "",
+      "exemplo": true
+    }
+  },
+  "pedidos": {
+    "o1": {
+      "data": "2026-08-12",
+      "numero": "1001",
+      "canal": "Instagram",
+      "cliente": "Marina S.",
+      "status": "entregue",
+      "nf": "NF-0101",
+      "itens": [
+        {
+          "produtoId": "botton",
+          "qtd": "4",
+          "preco": "8.9"
+        }
+      ],
+      "freteCobrado": "12",
+      "desconto": "",
+      "taxaValor": "0.9",
+      "custoEnvio": "12",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o2": {
+      "data": "2026-08-21",
+      "numero": "1002",
+      "canal": "Shopee",
+      "cliente": "julia.ar",
+      "status": "entregue",
+      "nf": "NF-0102",
+      "itens": [
+        {
+          "produtoId": "botton",
+          "qtd": "3",
+          "preco": "8.9"
+        },
+        {
+          "produtoId": "print",
+          "qtd": "1",
+          "preco": "24.9"
+        }
+      ],
+      "freteCobrado": "",
+      "desconto": "",
+      "taxaValor": "8.5",
+      "custoEnvio": "",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o3": {
+      "data": "2026-08-30",
+      "numero": "1003",
+      "canal": "Feira / evento",
+      "cliente": "Feira de agosto",
+      "status": "entregue",
+      "nf": "",
+      "itens": [
+        {
+          "produtoId": "botton",
+          "qtd": "14",
+          "preco": "8"
+        },
+        {
+          "produtoId": "print",
+          "qtd": "3",
+          "preco": "22"
+        }
+      ],
+      "freteCobrado": "",
+      "desconto": "",
+      "taxaValor": "",
+      "custoEnvio": "",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o4": {
+      "data": "2026-09-08",
+      "numero": "1004",
+      "canal": "Shopee",
+      "cliente": "bia_lima",
+      "status": "entregue",
+      "nf": "NF-0104",
+      "itens": [
+        {
+          "produtoId": "marcador",
+          "qtd": "2",
+          "preco": "7.9"
+        },
+        {
+          "produtoId": "botton",
+          "qtd": "2",
+          "preco": "8.9"
+        }
+      ],
+      "freteCobrado": "",
+      "desconto": "",
+      "taxaValor": "6.2",
+      "custoEnvio": "",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o5": {
+      "data": "2026-09-17",
+      "numero": "1005",
+      "canal": "Instagram",
+      "cliente": "Rafa M.",
+      "status": "entregue",
+      "nf": "NF-0105",
+      "itens": [
+        {
+          "produtoId": "chaveiro",
+          "qtd": "2",
+          "preco": "22.9"
+        },
+        {
+          "produtoId": "botton",
+          "qtd": "2",
+          "preco": "8.9"
+        }
+      ],
+      "freteCobrado": "15",
+      "desconto": "3.6",
+      "taxaValor": "1.6",
+      "custoEnvio": "15",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o6": {
+      "data": "2026-09-25",
+      "numero": "1006",
+      "canal": "Elo7",
+      "cliente": "Carla P.",
+      "status": "entregue",
+      "nf": "NF-0106",
+      "itens": [
+        {
+          "produtoId": "print",
+          "qtd": "2",
+          "preco": "24.9"
+        },
+        {
+          "produtoId": "marcador",
+          "qtd": "3",
+          "preco": "7.9"
+        }
+      ],
+      "freteCobrado": "18",
+      "desconto": "",
+      "taxaValor": "13.5",
+      "custoEnvio": "18",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o7": {
+      "data": "2026-09-29",
+      "numero": "1007",
+      "canal": "Shopee",
+      "cliente": "thi.oliv",
+      "status": "entregue",
+      "nf": "NF-0107",
+      "itens": [
+        {
+          "produtoId": "chaveiro",
+          "qtd": "3",
+          "preco": "22.9"
+        }
+      ],
+      "freteCobrado": "",
+      "desconto": "",
+      "taxaValor": "13.7",
+      "custoEnvio": "",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o8": {
+      "data": "2026-10-03",
+      "numero": "1008",
+      "canal": "Instagram",
+      "cliente": "Lu Andrade",
+      "status": "enviado",
+      "nf": "NF-0108",
+      "itens": [
+        {
+          "produtoId": "botton",
+          "qtd": "6",
+          "preco": "8.9"
+        },
+        {
+          "produtoId": "marcador",
+          "qtd": "2",
+          "preco": "7.9"
+        }
+      ],
+      "freteCobrado": "12",
+      "desconto": "5",
+      "taxaValor": "1.9",
+      "custoEnvio": "12",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o9": {
+      "data": "2026-10-09",
+      "numero": "1009",
+      "canal": "Shopee",
+      "cliente": "gabi.m",
+      "status": "produzindo",
+      "nf": "",
+      "itens": [
+        {
+          "produtoId": "bloco",
+          "qtd": "2",
+          "preco": "26.9"
+        },
+        {
+          "produtoId": "botton",
+          "qtd": "3",
+          "preco": "8.9"
+        }
+      ],
+      "freteCobrado": "",
+      "desconto": "",
+      "taxaValor": "12.1",
+      "custoEnvio": "",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o10": {
+      "data": "2026-10-11",
+      "numero": "1010",
+      "canal": "Feira / evento",
+      "cliente": "Feira Criativa",
+      "status": "entregue",
+      "nf": "",
+      "itens": [
+        {
+          "produtoId": "botton",
+          "qtd": "18",
+          "preco": "8"
+        },
+        {
+          "produtoId": "chaveiro",
+          "qtd": "5",
+          "preco": "20"
+        },
+        {
+          "produtoId": "print",
+          "qtd": "4",
+          "preco": "22"
+        },
+        {
+          "produtoId": "marcador",
+          "qtd": "6",
+          "preco": "7"
+        }
+      ],
+      "freteCobrado": "",
+      "desconto": "",
+      "taxaValor": "",
+      "custoEnvio": "",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    },
+    "o11": {
+      "data": "2026-10-12",
+      "numero": "1011",
+      "canal": "Instagram",
+      "cliente": "Pri Costa",
+      "status": "novo",
+      "nf": "",
+      "itens": [
+        {
+          "produtoId": "chaveiro",
+          "qtd": "1",
+          "preco": "22.9"
+        },
+        {
+          "produtoId": "bloco",
+          "qtd": "1",
+          "preco": "26.9"
+        }
+      ],
+      "freteCobrado": "14",
+      "desconto": "",
+      "taxaValor": "1.5",
+      "custoEnvio": "14",
+      "rastreio": "",
+      "obs": "",
+      "exemplo": true
+    }
+  },
+  "producoes": {
+    "l1": {
+      "data": "2026-08-05",
+      "produtoId": "botton",
+      "qtd": 48,
+      "obs": "",
+      "consumo": [
+        {
+          "insumoId": "papelCouche",
+          "qtd": 4
+        },
+        {
+          "insumoId": "kitBotton",
+          "qtd": 48
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": 48
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": 14.399999999999999
+        }
+      ],
+      "exemplo": true
+    },
+    "l2": {
+      "data": "2026-08-20",
+      "produtoId": "print",
+      "qtd": 10,
+      "obs": "",
+      "consumo": [
+        {
+          "insumoId": "papelFoto",
+          "qtd": 5
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": 10
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": 15
+        }
+      ],
+      "exemplo": true
+    },
+    "l3": {
+      "data": "2026-09-04",
+      "produtoId": "marcador",
+      "qtd": 24,
+      "obs": "",
+      "consumo": [
+        {
+          "insumoId": "papelCouche",
+          "qtd": 4
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": 24
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": 9.600000000000001
+        }
+      ],
+      "exemplo": true
+    },
+    "l4": {
+      "data": "2026-09-15",
+      "produtoId": "chaveiro",
+      "qtd": 16,
+      "obs": "",
+      "consumo": [
+        {
+          "insumoId": "acrilico",
+          "qtd": 16
+        },
+        {
+          "insumoId": "argola",
+          "qtd": 16
+        },
+        {
+          "insumoId": "papelCouche",
+          "qtd": 2
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": 16
+        }
+      ],
+      "exemplo": true
+    },
+    "l5": {
+      "data": "2026-09-28",
+      "produtoId": "botton",
+      "qtd": 36,
+      "obs": "",
+      "consumo": [
+        {
+          "insumoId": "papelCouche",
+          "qtd": 3
+        },
+        {
+          "insumoId": "kitBotton",
+          "qtd": 36
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": 36
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": 10.799999999999999
+        }
+      ],
+      "exemplo": true
+    },
+    "l6": {
+      "data": "2026-10-06",
+      "produtoId": "bloco",
+      "qtd": 8,
+      "obs": "",
+      "consumo": [
+        {
+          "insumoId": "offset",
+          "qtd": 100
+        },
+        {
+          "insumoId": "kraft",
+          "qtd": 2
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": 4
+        }
+      ],
+      "exemplo": true
+    },
+    "l7": {
+      "data": "2026-10-07",
+      "produtoId": "print",
+      "qtd": 8,
+      "obs": "",
+      "consumo": [
+        {
+          "insumoId": "papelFoto",
+          "qtd": 4
+        },
+        {
+          "insumoId": "saquinho",
+          "qtd": 8
+        },
+        {
+          "insumoId": "tinta",
+          "qtd": 12
+        }
+      ],
+      "exemplo": true
+    }
+  }
+}
