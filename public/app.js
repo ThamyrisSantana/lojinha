@@ -224,6 +224,31 @@ function resumoMes(k){
   const gastos=gas.reduce((a,g)=>a+gastoTotal(g),0);
   return{ped,gas,vendas,liquido,gastos,saldo:liquido-gastos,n:ped.length,ticket:ped.length?vendas/ped.length:0};
 }
+// Monthly profit: what the month's sales really earned after the cost of the pieces sold.
+// Piece cost uses the same definition as the pricing screen (materials + waste + labor + extras),
+// at today's supply costs. Order-level fees and discounts are split among the order's items by
+// revenue, so the per-product profits plus net shipping add up exactly to the month's profit.
+function monthProfit(k){
+  const orders=S.pedidos.filter(o=>(o.data||'').startsWith(k)&&o.status!=='cancelado');
+  const unitCost={};
+  const costOf=id=>{if(!(id in unitCost)){const p=prodById(id);unitCost[id]=p?custo(p).total:0}return unitCost[id]};
+  let sales=0,net=0,goodsCost=0,shippingNet=0;
+  const byProduct={};
+  orders.forEach(o=>{
+    const t=totPedido(o);
+    sales+=t.total;net+=t.liquido;
+    shippingNet+=num(o.freteCobrado)-num(o.custoEnvio);
+    const deductRate=t.sub>0?(num(o.taxaValor)+num(o.desconto))/t.sub:0;
+    (o.itens||[]).forEach(i=>{
+      const qty=num(i.qtd),revenue=qty*num(i.preco),cost=qty*costOf(i.produtoId);
+      goodsCost+=cost;
+      const row=byProduct[i.produtoId]||(byProduct[i.produtoId]={qty:0,revenue:0,profit:0});
+      row.qty+=qty;row.revenue+=revenue;row.profit+=revenue*(1-deductRate)-cost;
+    });
+  });
+  const profit=net-goodsCost;
+  return{sales,net,goodsCost,feesAndShipping:sales-net,profit,margin:sales>0?profit/sales*100:0,shippingNet,byProduct,orders:orders.length};
+}
 
 /* ============ UI state ============ */
 // Ícones de traço (24×24), desenhados para o painel.
@@ -256,9 +281,9 @@ const TABS=[
 const GRUPOS=[['Dia a dia',['visao','tarefas','pedidos']],['Produtos',['catalogo','preco','producao']],['Estoque e dinheiro',['insumos','gastos']],['',['ajustes']]];
 const BNAV=['visao','pedidos','tarefas','catalogo'];
 const tabLabel=k=>(TABS.find(t=>t[0]===k)||TABS[0])[1];
-const ui=Object.assign({tFiltro:'pendentes',tTag:'',tab:'visao',mes:today().slice(0,7),gMes:today().slice(0,7),pStatus:'abertos',pCanal:'',filaSo:false,open:{}},lsGet('painel-ui',{}));
+const ui=Object.assign({tFiltro:'pendentes',tTag:'',tab:'visao',mes:today().slice(0,7),gMes:today().slice(0,7),pStatus:'abertos',pCanal:'',filaSo:false,rank:'lucro',open:{}},lsGet('painel-ui',{}));
 if(/^#[a-z]+$/.test(location.hash)&&TABS.some(t=>'#'+t[0]===location.hash))ui.tab=location.hash.slice(1);
-const saveUi=()=>lsSet('painel-ui',{tab:ui.tab,filaSo:ui.filaSo,pStatus:ui.pStatus,tFiltro:ui.tFiltro});
+const saveUi=()=>lsSet('painel-ui',{tab:ui.tab,filaSo:ui.filaSo,pStatus:ui.pStatus,tFiltro:ui.tFiltro,rank:ui.rank});
 
 let raf=0; function schedule(){if(!raf)raf=requestAnimationFrame(()=>{raf=0;render()})}
 
@@ -326,9 +351,12 @@ const editBtn=(kind,id)=>`<button type="button" class="btn sm ghost" data-act="e
 /* ============ views ============ */
 function vVisao(){
   const r=resumoMes(ui.mes), ant=resumoMes(shiftMonth(ui.mes,-1));
-  const delta=(a,b)=>b?{txt:`${a>=b?'▲':'▼'} ${pct(Math.abs((a-b)/b*100))} vs ${mesLabel(shiftMonth(ui.mes,-1))}`,cls:a>=b?'up':'down'}:{txt:'sem vendas no mês anterior',cls:''};
+  const pr=monthProfit(ui.mes), prPrev=monthProfit(shiftMonth(ui.mes,-1)), prevLabel=mesLabel(shiftMonth(ui.mes,-1));
+  const delta=(a,b)=>b?{txt:`${a>=b?'▲':'▼'} ${pct(Math.abs((a-b)/b*100))} vs ${prevLabel}`,cls:a>=b?'up':'down'}:{txt:'sem vendas no mês anterior',cls:''};
+  // Profit can be negative, so compare it in R$ instead of percent.
+  const profitDelta=prPrev.orders?`${pr.profit>=prPrev.profit?'▲':'▼'} ${brl(Math.abs(pr.profit-prPrev.profit))} vs ${prevLabel}`:'sem vendas no mês anterior';
   // chart
-  const months=[...Array(6)].map((_,i)=>shiftMonth(ui.mes,i-5)), data=months.map(k=>({k,...resumoMes(k)}));
+  const months=[...Array(6)].map((_,i)=>shiftMonth(ui.mes,i-5)), data=months.map(k=>({k,...resumoMes(k),lucro:monthProfit(k).profit}));
   const max=Math.max(1,...data.map(d=>Math.max(d.vendas,d.gastos)));
   const step=niceStep(max), top=Math.ceil(max/step)*step;
   const W=600,H=230,L=58,B=200,T=14,cw=(W-L-8)/6,bw=Math.min(26,cw/3.2);
@@ -337,7 +365,7 @@ function vVisao(){
   let ticks='';for(let v=0;v<=top+1e-9;v+=step)ticks+=`<line class="grid" x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${fmtK(v)}</text>`;
   const bars=data.map((d,i)=>{const cx=L+cw*i+cw/2;return bar(cx-bw-1,d.vendas,'var(--s1)')+bar(cx+1,d.gastos,'var(--s2)')+
     `<text x="${cx}" y="${B+18}" text-anchor="middle" ${d.k===ui.mes?'style="fill:var(--ink);font-weight:800"':''}>${mesLabel(d.k)}</text>`+
-    `<rect class="hit" x="${L+cw*i+2}" y="${T}" width="${cw-4}" height="${B-T}" data-tip="<b>${mesLabel(d.k)}</b><br>Vendas: ${brl(d.vendas)}<br>Gastos: ${brl(d.gastos)}<br>Saldo: ${brl(d.saldo)}"/>`}).join('');
+    `<rect class="hit" x="${L+cw*i+2}" y="${T}" width="${cw-4}" height="${B-T}" data-tip="<b>${mesLabel(d.k)}</b><br>Vendas: ${brl(d.vendas)}<br>Gastos: ${brl(d.gastos)}<br>Lucro: ${brl(d.lucro)}<br>Caixa: ${brl(d.saldo)}"/>`}).join('');
   // alertas: o que pede uma ação, cada um com o botão que resolve
   const al=[];
   const alerta=(tom,icone,titulo,sub,botao='')=>`<div class="alert"><span class="aic ${tom}">${ic(icone)}</span><div class="atx"><b>${titulo}</b><span>${sub}</span></div>${botao}</div>`;
@@ -347,10 +375,15 @@ function vVisao(){
   S.insumos.forEach(i=>{const e=movIns(i).estoque,[l,c]=insStatus(i,e);if(c!=='good')al.push(alerta(c,'insumos',`${esc(i.nome)} · ${l.toLowerCase()}`,`${fmt(e)} ${esc(i.unidade||'un')} em estoque${num(i.estoqueMin)?`, mínimo ${fmt(i.estoqueMin)}`:''}`,`<button class="btn sm" data-act="comprar" data-id="${i.id}">Comprei</button>`))});
   const fila=S.produtos.filter(p=>num(p.qtdImprimir)>0);
   if(fila.length)al.push(alerta('blue','producao',`${fila.reduce((a,p)=>a+num(p.qtdImprimir),0)} peças na fila de impressão`,fila.map(p=>esc(p.nome)).join(', '),`<button class="btn sm" data-act="fila">Ver fila</button>`));
-  // mais vendidos & canais
-  const vend={},canal={};
-  r.ped.forEach(o=>{canal[o.canal||'Sem canal']=(canal[o.canal||'Sem canal']||0)+totPedido(o).total;(o.itens||[]).forEach(i=>{vend[i.produtoId]=(vend[i.produtoId]||0)+num(i.qtd)})});
-  const topV=Object.entries(vend).sort((a,b)=>b[1]-a[1]).slice(0,6), mv=Math.max(1,...topV.map(x=>x[1]));
+  // product ranking (by profit or by pieces) & sales by channel
+  const canal={};
+  r.ped.forEach(o=>{canal[o.canal||'Sem canal']=(canal[o.canal||'Sem canal']||0)+totPedido(o).total});
+  const byProfit=ui.rank!=='pecas';
+  const ranked=Object.entries(pr.byProduct).sort((a,b)=>byProfit?b[1].profit-a[1].profit:b[1].qty-a[1].qty).slice(0,6);
+  const rankMax=Math.max(1e-9,...ranked.map(([,x])=>byProfit?Math.max(0,x.profit):x.qty));
+  const rankRow=([id,x])=>{const v=byProfit?x.profit:x.qty,w=Math.max(0,v)/rankMax*100,m=x.revenue>0?x.profit/x.revenue*100:0;
+    return `<div class="hbar rank"><span class="nm"><span class="t">${esc(prodById(id)?.nome||'Produto removido')}</span><small>${byProfit?`${fmt(x.qty,0)} peça${x.qty===1?'':'s'} · margem ${pct(m)}`:`${brl(x.revenue)} em vendas`}</small></span><div class="track"><div class="fill" style="width:${w}%"></div></div><span class="num${v<0?' neg':''}">${byProfit?brl(v):fmt(v,0)}</span></div>`};
+  const rankSeg=`<div class="seg sm" role="group" aria-label="Ordenar produtos">${[['lucro','Lucro'],['pecas','Peças']].map(([v,l])=>`<button data-act="setui" data-k="rank" data-v="${v}" aria-pressed="${(ui.rank||'lucro')===v}">${l}</button>`).join('')}</div>`;
   const topC=Object.entries(canal).sort((a,b)=>b[1]-a[1]), mc=Math.max(1,...topC.map(x=>x[1]));
   const vazio=COLS.every(c=>!S[c].length);
   const h=new Date().getHours(), saud=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
@@ -367,9 +400,9 @@ function vVisao(){
     ${qa('c4','tarefa','tarefas','Nova tarefa','algo para lembrar')}
   </nav>
   <div class="kpis">
-    <div class="kpi feat${r.saldo<0?' neg':''}">${STAR}<span>Saldo do mês</span><b class="num">${brl(r.saldo)}</b><small>recebido ${brl(r.liquido)} − gastos ${brl(r.gastos)}</small></div>
+    <div class="kpi feat${pr.profit<0?' neg':''}" data-tip="<b>Lucro do mês</b><br>Quanto as vendas renderam depois do custo das peças vendidas (materiais, perda, seu tempo e extras, como em Preços) e das taxas e do envio.">${STAR}<span>Lucro do mês</span><b class="num">${brl(pr.profit)}</b><small>${pr.sales?`margem ${pct(pr.margin)} · ${profitDelta}`:'nenhuma venda neste mês'}</small><small class="calc">vendas ${brl(pr.sales)} − peças ${brl(pr.goodsCost)} − taxas e envio ${brl(pr.feesAndShipping)}</small></div>
     <div class="kpi"><span>Vendas</span><b class="num">${brl(r.vendas)}</b><small class="${dv.cls}">${dv.txt}</small></div>
-    <div class="kpi"><span>Gastos</span><b class="num">${brl(r.gastos)}</b><small>${r.gas.length} lançamento${r.gas.length===1?'':'s'}</small></div>
+    <div class="kpi" data-tip="<b>Caixa do mês</b><br>Dinheiro que entrou menos tudo o que saiu no mês (material, equipamentos, fretes…), mesmo que o material comprado ainda não tenha sido usado."><span>Caixa do mês</span><b class="num${r.saldo<0?' neg':''}">${brl(r.saldo)}</b><small>recebido ${brl(r.liquido)} − gastos ${brl(r.gastos)}</small></div>
     <div class="kpi"><span>Pedidos</span><b class="num">${r.n}</b><small>${r.n?`ticket médio ${brl(r.ticket)}`:'nenhum neste mês'}</small></div>
   </div>
   <div class="grid2">
@@ -381,8 +414,8 @@ function vVisao(){
     </section>
   </div>
   <div class="grid2b">
-    <section class="panel"><h2>Mais vendidos <small>peças em ${mesLabel(ui.mes)}</small></h2>
-      ${topV.length?topV.map(([id,q])=>`<div class="hbar"><span>${esc(prodById(id)?.nome||'Produto removido')}</span><div class="track"><div class="fill" style="width:${q/mv*100}%"></div></div><span class="num">${fmt(q,0)}</span></div>`).join(''):'<div class="tsub">Nenhuma venda registrada neste mês.</div>'}</section>
+    <section class="panel"><h2>Produtos em ${mesLabel(ui.mes)} ${rankSeg}</h2>
+      ${ranked.length?ranked.map(rankRow).join('')+(byProfit?'<p class="tsub rank-note">Lucro de cada produto = vendas − custo das peças − parte das taxas e descontos do pedido.</p>':''):'<div class="tsub">Nenhuma venda registrada neste mês.</div>'}</section>
     <section class="panel"><h2>Vendas por canal <small>${mesLabel(ui.mes)}</small></h2>
       ${topC.length?topC.map(([c,v])=>`<div class="hbar alt"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${v/mc*100}%"></div></div><span class="num">${brl(v)}</span></div>`).join(''):'<div class="tsub">Nenhuma venda registrada neste mês.</div>'}</section>
   </div>`;
