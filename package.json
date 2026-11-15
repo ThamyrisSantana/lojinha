@@ -4,9 +4,15 @@
   "private": true,
   "description": "Painel web da lojinha: preços, catálogo e impressão, insumos, gastos, pedidos e produção. Site estático + Supabase.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "npm run test:unit && npm run test:e2e",
+    "test:unit": "node --test \"tests/unit/*.test.js\"",
+    "test:e2e": "playwright test"
   },
   "engines": {
     "node": ">=18"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.49.1"
   }
 }
