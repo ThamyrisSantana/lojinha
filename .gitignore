@@ -8,3 +8,10 @@ data/
 *.log
 .DS_Store
 Thumbs.db
+
+# Android app package (PWABuilder): never commit the signing key or builds
+*.keystore
+*.jks
+signing-key-info.txt
+*.apk
+*.aab

@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.netlify.zesty_pithivier_0eae6d.twa",
+      "sha256_cert_fingerprints": ["E8:7D:3B:8F:0F:BB:C7:78:19:8D:36:37:06:BC:CD:0C:47:B6:B8:1A:A8:B4:76:68:FF:8A:E5:C3:23:35:20:5E"]
+    }
+  }
+]
