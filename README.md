@@ -65,7 +65,7 @@ After deploying, go back to Supabase, open **Authentication → URL Configuratio
 
 ## 3. Run it locally
 
-Requires Node.js 18 or newer. There are no dependencies to install.
+Requires Node.js 18 or newer. The app itself has no dependencies to install (the only package, Playwright, is for the tests).
 
 Double-click `iniciar.bat`, or run:
 
@@ -78,6 +78,23 @@ With `config.js` filled in, the local copy uses the real Supabase project. With 
 
 > On Windows PowerShell, `npm start` may fail with "execution of scripts is disabled". Use `npm.cmd start`
 > or `node server.js` instead.
+
+## 4. Tests
+
+Requires Node.js 22. Two layers, both run automatically on every pull request (`.github/workflows/tests.yml`):
+
+| Command | What it checks | Tool |
+|---|---|---|
+| `npm run test:unit` | The calculations in `public/app.js`: supply cost, product cost and suggested price, stock, order totals, the month summary, monthly profit (and that profit per product adds up to it), task dates, backup and restore. | Node's built-in test runner, no install needed |
+| `npm run test:e2e` | The real dashboard in a browser, in demo mode: every screen, the overview numbers, creating/editing/deleting an order, tasks, settings, light/dark/auto theme, and the phone layout. | [Playwright](https://playwright.dev) |
+| `npm test` | Both. | |
+
+Setup once: `npm install`. Locally the end-to-end tests use your installed Google Chrome; in CI they use Playwright's Chromium (`npx playwright install chromium` if you want the same locally).
+
+How they work:
+- **Unit tests** (`tests/unit/`) load the real `public/app.js` into an isolated Node context with a small fake browser (`tests/unit/load-app.js`), so the app doesn't need to change to be testable. Expected values are worked out by hand in the test comments, plus a regression check on `exemplo.json` (October 2026 profit R$ 413,56).
+- **End-to-end tests** (`tests/e2e/`) start `tests/e2e/demo-server.js`, which serves `public/` with an empty `config.js` (demo mode: sample data, no Supabase, no login). The clock is fixed on 20 October 2026 so the sample data always falls in the current month. Desktop runs at 1440×900; `mobile.spec.js` runs on a Pixel 7 viewport.
+- A failed CI run uploads the Playwright report (with traces) as a build artifact.
 
 ## Getting started in the dashboard
 
@@ -108,5 +125,8 @@ public/              the site (this is what gets deployed)
   logo.webp          logo
 supabase/schema.sql  table, access rules and image bucket
 server.js            local server, for testing only
+tests/unit/          unit tests of the calculations (node --test)
+tests/e2e/           end-to-end tests (Playwright) and the demo-mode test server
+playwright.config.js end-to-end test settings (desktop and phone)
 docs/prints/         screenshots used in the README and pull requests (not deployed)
 ```
