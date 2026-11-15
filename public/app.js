@@ -292,14 +292,15 @@ function render(){
   v.innerHTML=fn();
   if(active&&v.querySelector('#'+CSS.escape(active)))v.querySelector('#'+CSS.escape(active)).focus();
 }
-// Tema: claro, escuro ou automático (segue o aparelho). A escolha fica salva neste navegador.
+// Tema: escuro por padrão; dá para escolher claro ou automático (segue o aparelho).
+// A escolha fica salva neste navegador; sem escolha salva, o index.html já aplica o escuro.
 const sistemaEscuro=matchMedia('(prefers-color-scheme: dark)');
 const temaAtual=()=>{const t=document.documentElement.dataset.theme;return t==='light'||t==='dark'?t:'auto'};
 const temaEscuro=()=>{const t=temaAtual();return t==='auto'?sistemaEscuro.matches:t==='dark'};
 function setTema(t){
   const h=document.documentElement;
   if(t==='light'||t==='dark'){h.dataset.theme=t;try{localStorage.setItem('painel-tema',t)}catch(_){}}
-  else{delete h.dataset.theme;try{localStorage.removeItem('painel-tema')}catch(_){}}
+  else{delete h.dataset.theme;try{localStorage.setItem('painel-tema','auto')}catch(_){}}
   render();
 }
 // Botão rápido (topo do celular): alterna entre claro e escuro.
@@ -332,7 +333,7 @@ function vVisao(){
   const step=niceStep(max), top=Math.ceil(max/step)*step;
   const W=600,H=230,L=58,B=200,T=14,cw=(W-L-8)/6,bw=Math.min(26,cw/3.2);
   const y=v=>B-(v/top)*(B-T);
-  const bar=(x,v,col)=>{const h=B-y(v);if(h<=0)return'';const r=Math.min(bw/2,h);return `<path d="M${x},${B} L${x},${y(v)+r} Q${x},${y(v)} ${x+r},${y(v)} L${x+bw-r},${y(v)} Q${x+bw},${y(v)} ${x+bw},${y(v)+r} L${x+bw},${B} Z" fill="${col}"/>`};
+  const bar=(x,v,col)=>{const h=B-y(v);if(h<=0)return'';const r=Math.min(3,h);return `<path d="M${x},${B} L${x},${y(v)+r} Q${x},${y(v)} ${x+r},${y(v)} L${x+bw-r},${y(v)} Q${x+bw},${y(v)} ${x+bw},${y(v)+r} L${x+bw},${B} Z" fill="${col}"/>`};
   let ticks='';for(let v=0;v<=top+1e-9;v+=step)ticks+=`<line class="grid" x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${fmtK(v)}</text>`;
   const bars=data.map((d,i)=>{const cx=L+cw*i+cw/2;return bar(cx-bw-1,d.vendas,'var(--s1)')+bar(cx+1,d.gastos,'var(--s2)')+
     `<text x="${cx}" y="${B+18}" text-anchor="middle" ${d.k===ui.mes?'style="fill:var(--ink);font-weight:800"':''}>${mesLabel(d.k)}</text>`+
