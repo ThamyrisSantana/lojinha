@@ -47,6 +47,17 @@ Colors, typography, spacing, radius and every reusable component are defined as 
 - [`docs/styleguide.html`](docs/styleguide.html): a visual catalog of every token and component in both themes. Open the file in a browser (no server needed).
 - [`public/tokens.css`](public/tokens.css): the tokens themselves. Components in `public/style.css` use only these variables.
 
+#### Online versions
+
+The design system is also published as two pages on Claude. Both are private: the owner has to share them from the page's Share menu before others can open them.
+
+| Page | What it is | Use it to |
+|---|---|---|
+| [Design System](https://claude.ai/artifact/8bK2pvF5MFXNQtXGx6YQzB#readme) | The reference: brand book, every token with its usage note (light and dark values), and 21 components, each with a live preview and guidelines. Built in Claude's Design System format. | Look up rules and tokens, edit values and notes, and let Claude build new screens that follow the system. Its layout is fixed by the format, so it has no theme switch. |
+| [Styleguide](https://claude.ai/artifact/VHWzGdb6avitJKevH6XUpT) | A one-page visual catalog: the same content as `docs/styleguide.html`, with the app's real CSS. | Check how everything looks, with a **Claro / Escuro** button (top right) that switches the whole page. View only. |
+
+The source of truth stays in this repository (`public/tokens.css`, `public/style.css`, `docs/design-system.md`). When the design changes here, both pages need to be updated to match.
+
 ## 1. Create the database in Supabase (free)
 
 1. Create an account at https://supabase.com and a new project (region: São Paulo).
