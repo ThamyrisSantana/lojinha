@@ -490,7 +490,7 @@ function vPedidos(){
     <td><div class="tname">#${esc(o.numero||'—')}${exChip(o)}</div><div class="tsub">${esc(o.cliente||'')}</div></td>
     <td>${esc(o.canal||'—')}</td>
     <td><div class="tsub" style="min-width:200px;max-width:300px">${(o.itens||[]).map(i=>`${fmt(i.qtd,0)}× ${esc(prodById(i.produtoId)?.nome||'produto removido')}`).join(', ')||'—'}</div></td>
-    <td class="r num"><b>${brl(t.total)}</b></td><td class="r num">${brl(t.liquido)}</td>
+    <td class="r num"><b>${brl(t.total)}</b><div class="tsub">líquido ${brl(t.liquido)}</div></td>
     <td>${o.nf?`<span class="chip good">NF ${esc(o.nf)}</span>`:'<span class="chip warn">sem NF</span>'}</td>
     <td><select data-act="status" data-id="${o.id}" id="st-${o.id}" aria-label="Status do pedido">${Object.entries(STATUS).map(([k,[l]])=>`<option value="${k}" ${o.status===k?'selected':''}>${l}</option>`).join('')}</select></td>
     <td><div class="row-actions">${editBtn('pedido',o.id)}</div></td></tr>`}).join('');
@@ -501,7 +501,7 @@ function vPedidos(){
     <select id="fCanal" data-bind="pCanal" aria-label="Filtrar canal"><option value="">Todos os canais</option>${canais.map(c=>`<option ${ui.pCanal===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
     <button class="btn primary" data-act="new" data-kind="pedido">${ic('plus')}Novo pedido</button></div></div>
   ${semNF?`<div class="note warn">${semNF} pedido${semNF>1?'s':''} sem nota fiscal registrada.</div>`:''}
-  ${os.length?`<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Pedido</th><th>Canal</th><th>Itens</th><th class="r">Total</th><th class="r">Líquido</th><th>Nota fiscal</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
+  ${os.length?`<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Pedido</th><th>Canal</th><th>Itens</th><th class="r">Total</th><th>Nota fiscal</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
   :empty(S.pedidos.length?'Nenhum pedido com esse filtro':'Nenhum pedido ainda','Registre as vendas de cada canal para acompanhar faturamento e estoque.','new','+ Novo pedido')}`;
 }
 
