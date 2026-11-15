@@ -242,6 +242,7 @@ const ICONS={
   chevL:'<path d="m15 18-6-6 6-6"/>', chevR:'<path d="m9 18 6-6-6-6"/>',
   sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
   moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
+  auto:'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
 };
 const ic=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||''}</svg>`;
@@ -270,8 +271,10 @@ function renderNav(){
   $('#shopName').textContent=loja;$('#mShop').textContent=loja;$('#mTitle').textContent=tabLabel(ui.tab);
   document.title=tabLabel(ui.tab)+' · '+loja;
   $('#menuBtn').innerHTML=ic('menu');
-  const escuro=temaEscuro();
-  $('#themeBtn').innerHTML=ic(escuro?'sun':'moon')+(escuro?'Tema claro':'Tema escuro');
+  $('#themeSeg').innerHTML=temaOpcoes(true);
+  const escuro=temaEscuro(),mt=$('#mThemeBtn');
+  mt.innerHTML=ic(escuro?'sun':'moon');mt.setAttribute('aria-label',escuro?'Usar tema claro':'Usar tema escuro');mt.title=mt.getAttribute('aria-label');
+  const meta=document.querySelector('meta[name=theme-color]');if(meta)meta.content=escuro?'#110F14':'#FAF5EF';
   const st=$('#storeState');
   st.className='store-state '+(mode==='nuvem'?'ok':mode==='demo'?'demo':'');
   st.querySelector('span').textContent=mode==='nuvem'?(user?.email||'Conectado'):mode==='demo'?'Demonstração':'Conectando…';
@@ -289,15 +292,22 @@ function render(){
   v.innerHTML=fn();
   if(active&&v.querySelector('#'+CSS.escape(active)))v.querySelector('#'+CSS.escape(active)).focus();
 }
-// Tema: segue o sistema até a pessoa escolher; a escolha fica salva neste navegador.
-const temaEscuro=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
-function trocarTema(){
-  const novo=temaEscuro()?'light':'dark';
-  document.documentElement.dataset.theme=novo;
-  try{localStorage.setItem('painel-tema',novo)}catch(_){}
-  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=novo==='dark'?'#110F14':'#FAF5EF';
+// Tema: claro, escuro ou automático (segue o aparelho). A escolha fica salva neste navegador.
+const sistemaEscuro=matchMedia('(prefers-color-scheme: dark)');
+const temaAtual=()=>{const t=document.documentElement.dataset.theme;return t==='light'||t==='dark'?t:'auto'};
+const temaEscuro=()=>{const t=temaAtual();return t==='auto'?sistemaEscuro.matches:t==='dark'};
+function setTema(t){
+  const h=document.documentElement;
+  if(t==='light'||t==='dark'){h.dataset.theme=t;try{localStorage.setItem('painel-tema',t)}catch(_){}}
+  else{delete h.dataset.theme;try{localStorage.removeItem('painel-tema')}catch(_){}}
   render();
 }
+// Botão rápido (topo do celular): alterna entre claro e escuro.
+const trocarTema=()=>setTema(temaEscuro()?'light':'dark');
+// No automático, acompanha a troca do aparelho sem precisar recarregar.
+sistemaEscuro.addEventListener?.('change',()=>{if(temaAtual()==='auto')render()});
+const TEMAS=[['light','Claro','sun'],['dark','Escuro','moon'],['auto','Automático','auto']];
+const temaOpcoes=curto=>TEMAS.map(([v,l,i])=>`<button type="button" data-act="tema" data-v="${v}" aria-pressed="${temaAtual()===v}" title="${v==='auto'?'Segue o tema do celular ou computador':'Tema '+l.toLowerCase()}">${ic(i)}${curto&&v==='auto'?'Auto':l}</button>`).join('');
 const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
 const mesLongo=k=>{if(!k)return'Todos os meses';const [y,m]=k.split('-');return MESES[+m-1]+' de '+y};
 // Seletor de mês: setas para andar e o nome do mês (clicar volta para o mês atual).
@@ -572,6 +582,10 @@ function vAjustes(){
     </div>
     <div><button class="btn primary" type="submit">Salvar ajustes</button></div>
   </form>
+  <section class="panel" style="max-width:720px;display:flex;flex-direction:column;gap:12px"><h2>Aparência</h2>
+    <div class="seg theme-seg big" role="group" aria-label="Tema">${temaOpcoes(false)}</div>
+    <div class="tsub">${temaAtual()==='auto'?`Automático: segue o tema do seu celular ou computador (agora está ${temaEscuro()?'escuro':'claro'}).`:`Tema ${temaAtual()==='dark'?'escuro':'claro'} fixo neste navegador.`} A escolha vale só para este aparelho.</div>
+  </section>
   <section class="panel" style="max-width:720px;display:flex;flex-direction:column;gap:12px"><h2>Dados</h2>
     <div class="tsub">${mode==='nuvem'?`Conta: <b>${esc(user?.email||'')}</b>. Os dados ficam no Supabase e aparecem em qualquer aparelho em que você entrar.`:'Modo demonstração: os dados ficam só neste navegador. Preencha <span class="mono">config.js</span> com as chaves do Supabase para salvar na nuvem.'}
     ${S.produtos.length} produtos · ${S.insumos.length} insumos · ${S.gastos.length} gastos · ${S.pedidos.length} pedidos · ${S.producoes.length} lotes.</div>
@@ -784,6 +798,7 @@ document.addEventListener('click',async e=>{
   else if(a==='setui'){ui[b.dataset.k]=b.dataset.k==='filaSo'?!!b.dataset.v:b.dataset.v;saveUi();render()}
   else if(a==='menu'){document.body.classList.toggle('menu-open')}
   else if(a==='theme'){trocarTema()}
+  else if(a==='tema'){setTema(b.dataset.v)}
   else if(a==='mes'){ui.mes=+b.dataset.d?shiftMonth(ui.mes,+b.dataset.d):today().slice(0,7);render()}
   else if(a==='gmes'){ui.gMes=+b.dataset.d?shiftMonth(ui.gMes||today().slice(0,7),+b.dataset.d):today().slice(0,7);render()}
   else if(a==='gall'){ui.gMes=ui.gMes?'':today().slice(0,7);render()}
