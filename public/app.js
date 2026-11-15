@@ -895,6 +895,3 @@ function erroSalvar(e){
 const falhou=e=>{console.error(e);toast(erroSalvar(e),6000)};
 
 boot();
-
-// Installable app (PWA): register the service worker. Browsers only allow it on HTTPS or localhost.
-if('serviceWorker' in navigator)window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.warn('Service worker not registered:',e))});
