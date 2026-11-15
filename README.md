@@ -15,7 +15,7 @@ The sidebar groups the screens by topic. On mobile it becomes a slide-out menu p
 
 | Group | Screen | What it does |
 |---|---|---|
-| Dia a dia (day to day) | **Visão geral** (overview) | Monthly balance, sales vs. expenses chart, best sellers, sales by channel and a "Precisa de atenção" (needs attention) list with one-click actions. |
+| Dia a dia (day to day) | **Visão geral** (overview) | Monthly profit and margin, sales, cash flow, a sales vs. expenses chart, products ranked by profit or by pieces, sales by channel and a "Precisa de atenção" (needs attention) list with one-click actions. |
 | | **Tarefas** (tasks) | To-do list with due dates, priority and tags, grouped by overdue / today / next 7 days. |
 | | **Pedidos** (orders) | Sales by channel, net amount after fees and shipping, invoice number and status. |
 | Produtos (products) | **Catálogo** (catalog) | Product cards with artwork, ready stock and print settings (paper, size, color adjustments), plus a print queue. |
@@ -90,6 +90,9 @@ To remove it all at once: **Ajustes → Apagar registros de exemplo** (delete sa
 - **Supply cost**: average of what you paid in the purchases recorded under Gastos ((price + shipping) ÷ quantity). Without purchases, it uses the cost entered on the supply.
 - **Product cost**: materials (quantity ÷ yield × supply cost) + waste % + labor (minutes ÷ 60 × hourly rate) + other costs.
 - **Suggested price**: cost × (1 + margin) ÷ (1 − platform fee), rounded up to end in ,90.
+- **Lucro do mês** (monthly profit): the month's sales (excluding cancelled orders) − cost of the pieces sold − platform fees and shipping cost. The cost of each piece is the product cost above, at today's supply costs, so it includes your time at the hourly rate. Margin = profit ÷ sales.
+- **Caixa do mês** (monthly cash flow): money received from the month's orders (after fees and shipping) − everything recorded under Gastos in the month. It differs from profit when you buy supplies in one month and use them in another.
+- **Profit per product** (ranking on the overview): sales of that product − cost of its pieces − its share of the order's fees and discounts (split by revenue). The products' profits plus net shipping add up to the monthly profit.
 - **Supply stock**: initial stock + purchases − what production batches consumed.
 - **Ready pieces**: initial stock + produced batches − orders (excluding cancelled ones).
 
