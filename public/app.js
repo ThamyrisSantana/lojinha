@@ -226,17 +226,35 @@ function resumoMes(k){
 }
 
 /* ============ UI state ============ */
+// Ícones de traço (24×24), desenhados para o painel.
+const ICONS={
+  visao:'<rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/>',
+  tarefas:'<rect x="3" y="3" width="18" height="18" rx="5"/><path d="m8 12 3 3 5-6"/>',
+  preco:'<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  catalogo:'<rect x="3" y="3" width="18" height="18" rx="4"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
+  insumos:'<path d="M21 8 12 3 3 8v8l9 5 9-5z"/><path d="m3 8 9 5 9-5M12 13v8"/>',
+  gastos:'<rect x="2.5" y="5" width="19" height="14" rx="3"/><path d="M2.5 10h19M7 15h3"/>',
+  pedidos:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><path d="M3 6h18M16 10a4 4 0 0 1-8 0"/>',
+  producao:'<path d="M6 9V3h12v6"/><rect x="2" y="9" width="20" height="9" rx="2"/><path d="M6 14h12v7H6z"/>',
+  ajustes:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  menu:'<path d="M4 7h16M4 12h16M4 17h10"/>',
+  chevL:'<path d="m15 18-6-6 6-6"/>', chevR:'<path d="m9 18 6-6-6-6"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+};
+const ic=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||''}</svg>`;
+const STAR='<svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5c.5 5.4 1.6 8.5 4 9.6 1.4.6 3.3.8 6.5.9-3.2.1-5.1.3-6.5.9-2.4 1.1-3.5 4.2-4 9.6-.5-5.4-1.6-8.5-4-9.6C6.6 12.3 4.7 12.1 1.5 12c3.2-.1 5.1-.3 6.5-.9 2.4-1.1 3.5-4.2 4-9.6z"/></svg>';
 const TABS=[
-  ['visao','Visão geral','<path d="M3 13h8V3H3zm0 8h8v-6H3zm10 0h8V11h-8zm0-18v6h8V3z"/>'],
-  ['tarefas','Tarefas','<path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/>'],
-  ['preco','Preços','<path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 15.9V19h-2v-1.1c-1.7-.3-3-1.4-3.1-3h1.8c.1.9 1 1.5 2.3 1.5 1.4 0 2-.7 2-1.4 0-.8-.5-1.3-2.3-1.7-2-.5-3.4-1.3-3.4-3 0-1.4 1.1-2.4 2.7-2.7V6.5h2v1.1c1.6.4 2.6 1.6 2.6 3h-1.8c0-.9-.9-1.5-2-1.5-1.2 0-1.9.6-1.9 1.3 0 .7.6 1.1 2.3 1.5 1.9.5 3.4 1.2 3.4 3.2 0 1.4-1 2.5-2.6 2.8z"/>'],
-  ['catalogo','Catálogo','<path d="M19 8H5a3 3 0 00-3 3v6h4v4h12v-4h4v-6a3 3 0 00-3-3zm-3 11H8v-5h8zm3-7a1 1 0 110-2 1 1 0 010 2zm-1-9H6v4h12z"/>'],
-  ['insumos','Insumos','<path d="M20 6h-3V4a2 2 0 00-2-2H9a2 2 0 00-2 2v2H4a2 2 0 00-2 2v11a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2zM9 4h6v2H9zm11 15H4V8h16z"/>'],
-  ['gastos','Gastos','<path d="M21 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2h-9a2 2 0 01-2-2V9a2 2 0 012-2zm-9 2v6h10V9zm4 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/>'],
-  ['pedidos','Pedidos','<path d="M7 18a2 2 0 100 4 2 2 0 000-4zM1 2v2h2l3.6 7.6L5.2 14A2 2 0 007 17h12v-2H7.4l1.1-2h7.5a2 2 0 001.7-1l3.6-6.5A1 1 0 0020.4 4H5.2l-.9-2zm16 16a2 2 0 100 4 2 2 0 000-4z"/>'],
-  ['producao','Produção','<path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>'],
-  ['ajustes','Ajustes','<path d="M19.4 13a7.5 7.5 0 000-2l2.1-1.6-2-3.5-2.5 1a7.3 7.3 0 00-1.7-1L15 3h-4l-.3 2.9a7.3 7.3 0 00-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 000 2l-2.1 1.6 2 3.5 2.5-1a7.3 7.3 0 001.7 1L11 21h4l.3-2.9a7.3 7.3 0 001.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 110-7 3.5 3.5 0 010 7z"/>'],
+  ['visao','Visão geral'],['tarefas','Tarefas'],['pedidos','Pedidos'],
+  ['catalogo','Catálogo'],['preco','Preços'],['producao','Produção'],
+  ['insumos','Insumos'],['gastos','Gastos'],['ajustes','Ajustes'],
 ];
+// O menu lateral agrupa as seções por assunto; a barra do celular mostra só as mais usadas.
+const GRUPOS=[['Dia a dia',['visao','tarefas','pedidos']],['Produtos',['catalogo','preco','producao']],['Estoque e dinheiro',['insumos','gastos']],['',['ajustes']]];
+const BNAV=['visao','pedidos','tarefas','catalogo'];
+const tabLabel=k=>(TABS.find(t=>t[0]===k)||TABS[0])[1];
 const ui=Object.assign({tFiltro:'pendentes',tTag:'',tab:'visao',mes:today().slice(0,7),gMes:today().slice(0,7),pStatus:'abertos',pCanal:'',filaSo:false,open:{}},lsGet('painel-ui',{}));
 if(/^#[a-z]+$/.test(location.hash)&&TABS.some(t=>'#'+t[0]===location.hash))ui.tab=location.hash.slice(1);
 const saveUi=()=>lsSet('painel-ui',{tab:ui.tab,filaSo:ui.filaSo,pStatus:ui.pStatus,tFiltro:ui.tFiltro});
@@ -245,8 +263,15 @@ let raf=0; function schedule(){if(!raf)raf=requestAnimationFrame(()=>{raf=0;rend
 
 function renderNav(){
   const badge={pedidos:S.pedidos.filter(o=>o.status==='novo'||o.status==='produzindo').length,tarefas:tarefasUrgentes().length};
-  $('#nav').innerHTML=TABS.map(([k,l,ic])=>`<button data-act="tab" data-v="${k}" ${ui.tab===k?'aria-current="page"':''}><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">${ic}</svg><span class="lbl">${l}</span>${badge[k]?`<span class="badge">${badge[k]}</span>`:''}</button>`).join('');
-  $('#shopName').textContent=cfg().nomeLoja||'Minha lojinha';
+  const item=(k,curto)=>`<button data-act="tab" data-v="${k}" ${ui.tab===k?'aria-current="page"':''}>${ic(k)}<span class="lbl">${curto&&k==='visao'?'Início':tabLabel(k)}</span>${badge[k]?`<span class="badge">${badge[k]}</span>`:''}</button>`;
+  $('#nav').innerHTML=GRUPOS.map(([g,ks])=>`<div class="ngroup">${g?`<p>${g}</p>`:''}${ks.map(k=>item(k)).join('')}</div>`).join('');
+  $('#bnav').innerHTML=BNAV.map(k=>item(k,true)).join('')+`<button data-act="menu" aria-label="Abrir menu com todas as seções" ${BNAV.includes(ui.tab)?'':'aria-current="page"'}>${ic('menu')}<span class="lbl">${BNAV.includes(ui.tab)?'Mais':tabLabel(ui.tab)}</span></button>`;
+  const loja=cfg().nomeLoja||'Minha lojinha';
+  $('#shopName').textContent=loja;$('#mShop').textContent=loja;$('#mTitle').textContent=tabLabel(ui.tab);
+  document.title=tabLabel(ui.tab)+' · '+loja;
+  $('#menuBtn').innerHTML=ic('menu');
+  const escuro=temaEscuro();
+  $('#themeBtn').innerHTML=ic(escuro?'sun':'moon')+(escuro?'Tema claro':'Tema escuro');
   const st=$('#storeState');
   st.className='store-state '+(mode==='nuvem'?'ok':mode==='demo'?'demo':'');
   st.querySelector('span').textContent=mode==='nuvem'?(user?.email||'Conectado'):mode==='demo'?'Demonstração':'Conectando…';
@@ -264,8 +289,24 @@ function render(){
   v.innerHTML=fn();
   if(active&&v.querySelector('#'+CSS.escape(active)))v.querySelector('#'+CSS.escape(active)).focus();
 }
+// Tema: segue o sistema até a pessoa escolher; a escolha fica salva neste navegador.
+const temaEscuro=()=>{const t=document.documentElement.dataset.theme;return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches};
+function trocarTema(){
+  const novo=temaEscuro()?'light':'dark';
+  document.documentElement.dataset.theme=novo;
+  try{localStorage.setItem('painel-tema',novo)}catch(_){}
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=novo==='dark'?'#110F14':'#FAF5EF';
+  render();
+}
+const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const mesLongo=k=>{if(!k)return'Todos os meses';const [y,m]=k.split('-');return MESES[+m-1]+' de '+y};
+// Seletor de mês: setas para andar e o nome do mês (clicar volta para o mês atual).
+const monthNav=(act,k)=>{const atual=today().slice(0,7);return `<div class="month" role="group" aria-label="Mês">
+  <button class="icon-btn" data-act="${act}" data-d="-1" aria-label="Mês anterior">${ic('chevL')}</button>
+  <button class="month-l" data-act="${act}" data-d="0" title="Voltar para o mês atual">${mesLongo(k)}${k&&k!==atual?'<small>voltar para hoje</small>':''}</button>
+  <button class="icon-btn" data-act="${act}" data-d="1" aria-label="Próximo mês">${ic('chevR')}</button></div>`};
 const exChip=r=>r.exemplo?' <span class="chip ex">exemplo</span>':'';
-const empty=(t,s,act,lbl)=>`<div class="empty"><b>${t}</b><span>${s}</span>${act?`<button class="btn primary" data-act="${act}">${lbl}</button>`:''}</div>`;
+const empty=(t,s,act,lbl)=>`<div class="empty"><b>${t}</b><span>${s}</span>${act?`<button class="btn primary" data-act="${act}">${String(lbl).replace(/^\+ /,ic('plus'))}</button>`:''}</div>`;
 const imgSrc=p=>imgUrl(p.imagem);
 const avatar=(p,cls='',st='')=>{const s=imgSrc(p);return `<div class="pimg ${cls}" ${st?`style="${st}"`:''}>${s?`<img src="${esc(s)}" alt="" onerror="this.remove()">`:esc((p.nome||'?').trim().charAt(0).toUpperCase())}</div>`};
 const delBtn=(col,id)=>`<button type="button" class="btn sm ghost danger" data-act="del" data-col="${col}" data-id="${id}">Excluir</button>`;
@@ -274,7 +315,7 @@ const editBtn=(kind,id)=>`<button type="button" class="btn sm ghost" data-act="e
 /* ============ views ============ */
 function vVisao(){
   const r=resumoMes(ui.mes), ant=resumoMes(shiftMonth(ui.mes,-1));
-  const delta=(a,b)=>b?`${a>=b?'▲':'▼'} ${pct(Math.abs((a-b)/b*100))} vs ${mesLabel(shiftMonth(ui.mes,-1))}`:'sem mês anterior';
+  const delta=(a,b)=>b?{txt:`${a>=b?'▲':'▼'} ${pct(Math.abs((a-b)/b*100))} vs ${mesLabel(shiftMonth(ui.mes,-1))}`,cls:a>=b?'up':'down'}:{txt:'sem vendas no mês anterior',cls:''};
   // chart
   const months=[...Array(6)].map((_,i)=>shiftMonth(ui.mes,i-5)), data=months.map(k=>({k,...resumoMes(k)}));
   const max=Math.max(1,...data.map(d=>Math.max(d.vendas,d.gastos)));
@@ -286,50 +327,53 @@ function vVisao(){
   const bars=data.map((d,i)=>{const cx=L+cw*i+cw/2;return bar(cx-bw-1,d.vendas,'var(--s1)')+bar(cx+1,d.gastos,'var(--s2)')+
     `<text x="${cx}" y="${B+18}" text-anchor="middle" ${d.k===ui.mes?'style="fill:var(--ink);font-weight:800"':''}>${mesLabel(d.k)}</text>`+
     `<rect class="hit" x="${L+cw*i+2}" y="${T}" width="${cw-4}" height="${B-T}" data-tip="<b>${mesLabel(d.k)}</b><br>Vendas: ${brl(d.vendas)}<br>Gastos: ${brl(d.gastos)}<br>Saldo: ${brl(d.saldo)}"/>`}).join('');
-  // alertas
+  // alertas: o que pede uma ação, cada um com o botão que resolve
   const al=[];
-  S.insumos.forEach(i=>{const e=movIns(i).estoque,[l,c]=insStatus(i,e);if(c!=='good')al.push(`<div class="alert"><span class="chip ${c}"><i></i>${l}</span><div><b>${esc(i.nome)}</b> <span class="tsub">· ${fmt(e)} ${esc(i.unidade||'un')} em estoque${num(i.estoqueMin)?`, mínimo ${fmt(i.estoqueMin)}`:''}</span></div></div>`)});
-  S.pedidos.filter(o=>o.status==='novo'||o.status==='produzindo').sort((a,b)=>(a.data||'').localeCompare(b.data||'')).forEach(o=>al.push(`<div class="alert"><span class="chip ${STATUS[o.status][1]}"><i></i>${STATUS[o.status][0]}</span><div><b>Pedido ${esc(o.numero||'s/ nº')}</b> <span class="tsub">· ${esc(o.cliente||'')} · ${esc(o.canal||'')} · ${dataBR(o.data)}</span></div><button class="btn sm ghost" data-act="edit" data-kind="pedido" data-id="${o.id}">Abrir</button></div>`));
+  const alerta=(tom,icone,titulo,sub,botao='')=>`<div class="alert"><span class="aic ${tom}">${ic(icone)}</span><div class="atx"><b>${titulo}</b><span>${sub}</span></div>${botao}</div>`;
   const urg=tarefasUrgentes();
-  if(urg.length){const atr=urg.filter(t=>t.prazo<today()).length;al.unshift(`<div class="alert"><span class="chip ${atr?'bad':'pink'}"><i></i>${atr?'Atrasada':'Hoje'}</span><div><b>${urg.length} tarefa${urg.length>1?'s':''} para fazer${atr?`, ${atr} atrasada${atr>1?'s':''}`:' hoje'}</b> <span class="tsub">· ${urg.slice(0,3).map(t=>esc(t.titulo)).join(', ')}${urg.length>3?'…':''}</span></div><button class="btn sm ghost" data-act="tab" data-v="tarefas">Ver</button></div>`)}
+  if(urg.length){const atr=urg.filter(t=>t.prazo<today()).length;al.push(alerta(atr?'bad':'pink','tarefas',`${urg.length} tarefa${urg.length>1?'s':''} para fazer${atr?` · ${atr} atrasada${atr>1?'s':''}`:' hoje'}`,urg.slice(0,3).map(t=>esc(t.titulo)).join(', ')+(urg.length>3?'…':''),`<button class="btn sm" data-act="tab" data-v="tarefas">Ver</button>`))}
+  S.pedidos.filter(o=>o.status==='novo'||o.status==='produzindo').sort((a,b)=>(a.data||'').localeCompare(b.data||'')).forEach(o=>al.push(alerta(STATUS[o.status][1]||'','pedidos',`Pedido ${esc(o.numero?'#'+o.numero:'s/ nº')} · ${STATUS[o.status][0].toLowerCase()}`,[esc(o.cliente||''),esc(o.canal||''),dataBR(o.data)].filter(Boolean).join(' · '),`<button class="btn sm" data-act="edit" data-kind="pedido" data-id="${o.id}">Abrir</button>`)));
+  S.insumos.forEach(i=>{const e=movIns(i).estoque,[l,c]=insStatus(i,e);if(c!=='good')al.push(alerta(c,'insumos',`${esc(i.nome)} · ${l.toLowerCase()}`,`${fmt(e)} ${esc(i.unidade||'un')} em estoque${num(i.estoqueMin)?`, mínimo ${fmt(i.estoqueMin)}`:''}`,`<button class="btn sm" data-act="comprar" data-id="${i.id}">Comprei</button>`))});
   const fila=S.produtos.filter(p=>num(p.qtdImprimir)>0);
-  if(fila.length)al.push(`<div class="alert"><span class="chip blue"><i></i>Imprimir</span><div><b>${fila.reduce((a,p)=>a+num(p.qtdImprimir),0)} peças na fila</b> <span class="tsub">· ${fila.map(p=>esc(p.nome)).join(', ')}</span></div><button class="btn sm ghost" data-act="tab" data-v="catalogo">Ver fila</button></div>`);
+  if(fila.length)al.push(alerta('blue','producao',`${fila.reduce((a,p)=>a+num(p.qtdImprimir),0)} peças na fila de impressão`,fila.map(p=>esc(p.nome)).join(', '),`<button class="btn sm" data-act="fila">Ver fila</button>`));
   // mais vendidos & canais
   const vend={},canal={};
   r.ped.forEach(o=>{canal[o.canal||'Sem canal']=(canal[o.canal||'Sem canal']||0)+totPedido(o).total;(o.itens||[]).forEach(i=>{vend[i.produtoId]=(vend[i.produtoId]||0)+num(i.qtd)})});
   const topV=Object.entries(vend).sort((a,b)=>b[1]-a[1]).slice(0,6), mv=Math.max(1,...topV.map(x=>x[1]));
   const topC=Object.entries(canal).sort((a,b)=>b[1]-a[1]), mc=Math.max(1,...topC.map(x=>x[1]));
   const vazio=COLS.every(c=>!S[c].length);
-  return `${vazio?`<section class="welcome"><div class="logo"><img src="logo.webp" alt=""></div><div><h2>Boas-vindas ao painel</h2><p>Comece cadastrando seus insumos (papéis, bases de botton, embalagens) e depois os produtos. Se preferir, carregue dados de exemplo para ver tudo funcionando e apague depois em Ajustes.</p><div class="tools"><button class="btn primary" data-act="new" data-kind="insumo">+ Primeiro insumo</button><button class="btn" data-act="exemplos">Carregar exemplos</button></div></div></section>`:''}
-  <div class="head"><span class="spark" style="width:18px;height:18px;right:34%;top:-4px;color:var(--lime)" aria-hidden="true"></span><span class="burst" style="width:40px;height:40px;right:24%;top:6px;color:var(--butter);opacity:.9" aria-hidden="true"></span><span class="spark" style="width:12px;height:12px;right:20%;top:52px;color:var(--lilac)" aria-hidden="true"></span>
-    <div><h1>Como a <em>lojinha</em> está <em class="lime">indo</em></h1><p>Vendas, gastos e o que precisa da sua atenção no mês.</p></div>
-    <div class="tools"><button class="icon-btn" data-act="mes" data-d="-1" aria-label="Mês anterior">‹</button><input type="month" id="fMes" value="${ui.mes}" data-bind="mes" aria-label="Mês"><button class="icon-btn" data-act="mes" data-d="1" aria-label="Próximo mês">›</button></div></div>
+  const h=new Date().getHours(), saud=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+  const dv=delta(r.vendas,ant.vendas);
+  const qa=(c,kind,icone,t,s)=>`<button class="qa ${c}" data-act="new" data-kind="${kind}"><i>${ic(icone)}</i><span>${t}<small>${s}</small></span></button>`;
+  return `${vazio?`<section class="welcome"><div class="logo"><img src="logo.webp" alt=""></div><div><h2>Boas-vindas ao painel</h2><p>Comece cadastrando seus insumos (papéis, bases de botton, embalagens) e depois os produtos. Se preferir, carregue dados de exemplo para ver tudo funcionando e apague depois em Ajustes.</p><div class="tools"><button class="btn primary" data-act="new" data-kind="insumo">${ic('plus')}Primeiro insumo</button><button class="btn" data-act="exemplos">Carregar exemplos</button></div></div></section>`:''}
+  <div class="head">
+    <div><p class="eyebrow">${saud}!</p><h1>Como a <em>lojinha</em> está indo</h1><p>Resumo do mês: quanto entrou, quanto saiu e o que precisa da sua atenção.</p></div>
+    <div class="tools">${monthNav('mes',ui.mes)}</div></div>
   <nav class="quick" aria-label="Atalhos">
-    <button class="qa c2" data-act="new" data-kind="pedido"><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 18a2 2 0 100 4 2 2 0 000-4zM1 2v2h2l3.6 7.6L5.2 14A2 2 0 007 17h12v-2H7.4l1.1-2h7.5a2 2 0 001.7-1l3.6-6.5A1 1 0 0020.4 4H5.2l-.9-2zm16 16a2 2 0 100 4 2 2 0 000-4z"/></svg></i>Novo pedido</button>
-    <button class="qa c1" data-act="new" data-kind="gasto"><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21 7V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-2h-9a2 2 0 01-2-2V9a2 2 0 012-2zm-9 2v6h10V9zm4 4.5a1.5 1.5 0 110-3 1.5 1.5 0 010 3z"/></svg></i>Novo gasto</button>
-    <button class="qa c3" data-act="new" data-kind="producao"><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M19 8H5a3 3 0 00-3 3v6h4v4h12v-4h4v-6a3 3 0 00-3-3zm-3 11H8v-5h8zm3-7a1 1 0 110-2 1 1 0 010 2zm-1-9H6v4h12z"/></svg></i>Registrar lote</button>
-    <button class="qa c4" data-act="new" data-kind="tarefa"><i><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 16.2l-3.5-3.5L4 14.2l5 5 11-11-1.5-1.5z"/></svg></i>Nova tarefa</button>
+    ${qa('c2','pedido','pedidos','Novo pedido','registrar uma venda')}
+    ${qa('c1','gasto','gastos','Novo gasto','compra ou despesa')}
+    ${qa('c3','producao','producao','Registrar lote','peças impressas')}
+    ${qa('c4','tarefa','tarefas','Nova tarefa','algo para lembrar')}
   </nav>
   <div class="kpis">
-    <div class="kpi"><span>Vendas</span><b class="num">${brl(r.vendas)}</b><small>${delta(r.vendas,ant.vendas)}</small></div>
-    <div class="kpi"><span>Recebido líquido</span><b class="num">${brl(r.liquido)}</b><small>depois de taxas e envio</small></div>
+    <div class="kpi feat${r.saldo<0?' neg':''}">${STAR}<span>Saldo do mês</span><b class="num">${brl(r.saldo)}</b><small>recebido ${brl(r.liquido)} − gastos ${brl(r.gastos)}</small></div>
+    <div class="kpi"><span>Vendas</span><b class="num">${brl(r.vendas)}</b><small class="${dv.cls}">${dv.txt}</small></div>
     <div class="kpi"><span>Gastos</span><b class="num">${brl(r.gastos)}</b><small>${r.gas.length} lançamento${r.gas.length===1?'':'s'}</small></div>
-    <div class="kpi hl"><span>Saldo do mês</span><b class="num">${brl(r.saldo)}</b><small>líquido − gastos</small></div>
-    <div class="kpi"><span>Pedidos</span><b class="num">${r.n}</b><small>ticket médio ${brl(r.ticket)}</small></div>
+    <div class="kpi"><span>Pedidos</span><b class="num">${r.n}</b><small>${r.n?`ticket médio ${brl(r.ticket)}`:'nenhum neste mês'}</small></div>
   </div>
   <div class="grid2">
+    <section class="panel"><h2>Precisa de atenção <span class="count${al.length?' hot':''}">${al.length}</span></h2>
+      <div class="alerts">${al.length?al.join(''):`<div class="alldone">${ic('check')}Tudo em dia: nenhum insumo acabando, nenhum pedido em aberto e fila de impressão vazia.</div>`}</div></section>
     <section class="panel"><h2>Vendas × gastos <small>últimos 6 meses</small></h2>
       <div class="legend"><span><i style="background:var(--s1)"></i>Vendas</span><span><i style="background:var(--s2)"></i>Gastos</span></div>
       <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vendas e gastos por mês">${ticks}${bars}</svg>
     </section>
-    <section class="panel"><h2>Precisa de atenção <small>${al.length||''}</small></h2>
-      <div class="alerts">${al.length?al.join(''):'<div class="tsub">Tudo em dia: nenhum insumo acabando, nenhum pedido em aberto e fila de impressão vazia.</div>'}</div></section>
   </div>
   <div class="grid2b">
     <section class="panel"><h2>Mais vendidos <small>peças em ${mesLabel(ui.mes)}</small></h2>
       ${topV.length?topV.map(([id,q])=>`<div class="hbar"><span>${esc(prodById(id)?.nome||'Produto removido')}</span><div class="track"><div class="fill" style="width:${q/mv*100}%"></div></div><span class="num">${fmt(q,0)}</span></div>`).join(''):'<div class="tsub">Nenhuma venda registrada neste mês.</div>'}</section>
     <section class="panel"><h2>Vendas por canal <small>${mesLabel(ui.mes)}</small></h2>
-      ${topC.length?topC.map(([c,v])=>`<div class="hbar"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${v/mc*100}%"></div></div><span class="num">${brl(v)}</span></div>`).join(''):'<div class="tsub">Nenhuma venda registrada neste mês.</div>'}</section>
+      ${topC.length?topC.map(([c,v])=>`<div class="hbar alt"><span>${esc(c)}</span><div class="track"><div class="fill" style="width:${v/mc*100}%"></div></div><span class="num">${brl(v)}</span></div>`).join(''):'<div class="tsub">Nenhuma venda registrada neste mês.</div>'}</section>
   </div>`;
 }
 function niceStep(max){const raw=max/4,p=Math.pow(10,Math.floor(Math.log10(raw))),n=raw/p;return (n<=1?1:n<=2?2:n<=2.5?2.5:n<=5?5:10)*p}
@@ -341,16 +385,15 @@ function vPreco(){
   const rows=ps.map(p=>{const k=custo(p),open=ui.open[p.id];
     const st=k.margemReal<15?'bad':k.margemReal<30?'warn':'good';
     return `<tr><td><div style="display:flex;gap:10px;align-items:center">${avatar(p,'','width:38px;height:38px;font-size:15px;box-shadow:0 0 0 1px var(--line)')}<div><div class="tname">${esc(p.nome)}${exChip(p)}</div><div class="tsub">${esc(p.categoria||'')}${p.sku?' · '+esc(p.sku):''}</div></div></div></td>
-      <td class="r num">${brl(k.mat+k.perda)}</td><td class="r num">${brl(k.mo)}<div class="tsub">${fmt(p.tempoMin,0)} min</div></td><td class="r num">${brl(k.extra)}</td>
-      <td class="r num"><b>${brl(k.total)}</b></td><td class="r num">${brl(k.redondo)}</td>
+      <td class="r num"><b>${brl(k.total)}</b><div class="tsub">materiais ${brl(k.mat+k.perda)} · ${fmt(p.tempoMin,0)} min</div></td><td class="r num">${brl(k.redondo)}</td>
       <td class="r num"><b>${brl(k.preco)}</b>${k.manual?'<div class="tsub">definido por você</div>':'<div class="tsub">sugerido</div>'}</td>
       <td class="r num">${brl(k.lucro)}</td><td class="r"><span class="chip ${st}">${pct(k.margemReal)}</span></td>
       <td><div class="row-actions"><button class="btn sm ghost" data-act="toggle" data-id="${p.id}">${open?'Fechar':'Detalhes'}</button>${editBtn('produto',p.id)}</div></td></tr>
-      ${open?`<tr class="detail"><td colspan="10">${breakdown(p,k)}</td></tr>`:''}`}).join('');
+      ${open?`<tr class="detail"><td colspan="7">${breakdown(p,k)}</td></tr>`:''}`}).join('');
   return `
-  <div class="head"><div><h1>Precificação</h1><p>Custo de cada produto a partir dos insumos, do tempo de produção e das taxas. Mão de obra a ${brl(num(c.valorHora))}/h, margem padrão ${pct(num(c.margem))}, taxa de venda ${pct(num(c.taxa))}, perda ${pct(num(c.perda))}.</p></div>
-    <div class="tools"><button class="btn ghost" data-act="tab" data-v="ajustes">Mudar padrões</button><button class="btn primary" data-act="new" data-kind="produto">+ Novo produto</button></div></div>
-  ${ps.length?`<div class="tbl-wrap"><table><thead><tr><th>Produto</th><th class="r">Materiais</th><th class="r">Mão de obra</th><th class="r">Extras</th><th class="r">Custo total</th><th class="r">Sugerido</th><th class="r">Preço de venda</th><th class="r">Lucro / un</th><th class="r">Margem</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="head"><div><h1>Precificação</h1><p>Quanto custa fazer cada peça (insumos + seu tempo + perdas) e por quanto vender. Clique em Detalhes para ver a conta completa.</p><div class="chips-row"><span class="chip">Mão de obra ${brl(num(c.valorHora))}/h</span><span class="chip">Margem ${pct(num(c.margem))}</span><span class="chip">Taxa de venda ${pct(num(c.taxa))}</span><span class="chip">Perda ${pct(num(c.perda))}</span></div></div>
+    <div class="tools"><button class="btn ghost" data-act="tab" data-v="ajustes">Mudar padrões</button><button class="btn primary" data-act="new" data-kind="produto">${ic('plus')}Novo produto</button></div></div>
+  ${ps.length?`<div class="tbl-wrap"><table><thead><tr><th>Produto</th><th class="r">Custo por peça</th><th class="r">Preço sugerido</th><th class="r">Preço de venda</th><th class="r">Lucro por peça</th><th class="r">Margem</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
   <div class="note">O lucro já desconta a taxa da plataforma e paga seu tempo pelo valor-hora. Margem abaixo de 15% fica em vermelho, até 30% em amarelo. Custo dos insumos = média do que você pagou nas compras (aba Gastos), ou o valor informado no insumo.</div>`
   :empty('Nenhum produto cadastrado','Cadastre um produto com os insumos e o tempo que leva para fazer; o preço sugerido aparece na hora.','new','+ Novo produto')}`;
 }
@@ -369,15 +412,22 @@ function vCatalogo(){
   let ps=[...S.produtos].sort((a,b)=>(a.nome||'').localeCompare(b.nome||''));
   const filaN=ps.filter(p=>num(p.qtdImprimir)>0);
   if(ui.filaSo)ps=filaN;
-  const fi=(l,v,cls='')=>`<div class="${cls}"><dt>${l}</dt><dd>${v===''||v==null?'—':esc(v)}</dd></div>`;
-  const sg=v=>v===''||v==null?'':(num(v)>0?'+':'')+v;
-  const cards=ps.map(p=>{const e=estoqueProd(p),q=num(p.qtdImprimir);return `<article class="pcard">
-    <div class="ptop">${avatar(p,p.categoria==='Botton'?'':'sq')}<div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="chips"><span class="chip">${esc(p.categoria||'Sem categoria')}</span><span class="chip ${e<=0?'bad':e<5?'warn':'good'}">${fmt(e,0)} prontas</span>${p.exemplo?'<span class="chip ex">exemplo</span>':''}</div></div></div>
-    <dl class="ficha">${fi('Papel',p.papel,'wide')}${fi('Tamanho',p.tamanho)}${fi('Peças / folha',p.pecasFolha)}${fi('Qualidade',p.qualidade)}${fi('Densidade',p.densidade)}${fi('Brilho',sg(p.brilho))}${fi('Contraste',sg(p.contraste))}${fi('Saturação',sg(p.saturacao))}${fi('Impressora',p.impressora)}${p.obsImpressao?fi('Observações',p.obsImpressao,'wide'):''}</dl>
-    <div class="pfoot"><div class="queue"><b>${fmt(q,0)}</b><span>para imprimir</span></div><div style="display:flex;gap:6px">${editBtn('produto',p.id)}${q>0?`<button class="btn sm primary" data-act="produzir" data-id="${p.id}">Registrar impressão</button>`:''}</div></div></article>`}).join('');
+  const tem=v=>v!==''&&v!=null;
+  const fi=(l,v,cls='')=>tem(v)?`<div class="${cls}"><dt>${l}</dt><dd>${esc(v)}</dd></div>`:'';
+  const sg=v=>(num(v)>0?'+':'')+v;
+  // Brilho, contraste e saturação viram uma linha só; campos vazios não aparecem.
+  const cor=p=>{const a=[['brilho',p.brilho],['contraste',p.contraste],['saturação',p.saturacao]].filter(x=>tem(x[1]));if(!a.length)return'';const muda=a.filter(x=>num(x[1])!==0);return fi('Ajuste de cor',muda.length?muda.map(([n,v])=>n+' '+sg(v)).join(' · '):'sem ajuste','wide')};
+  const cards=ps.map(p=>{const e=estoqueProd(p),q=num(p.qtdImprimir);
+    const pares=[['Tamanho',p.tamanho],['Peças por folha',p.pecasFolha],['Qualidade',p.qualidade],['Densidade',p.densidade],['Impressora',p.impressora]].filter(x=>tem(x[1]));
+    const ficha=fi('Papel',p.papel,'wide')+pares.map(([l,v],i)=>fi(l,v,pares.length%2&&i===pares.length-1?'wide':'')).join('')+cor(p)+fi('Observações',p.obsImpressao,'wide');
+    return `<article class="pcard">
+    <div class="ptop">${avatar(p,p.categoria==='Botton'?'':'sq')}<div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="chips"><span class="chip">${esc(p.categoria||'Sem categoria')}</span><span class="chip ${e<=0?'bad':e<5?'warn':'good'}"><i></i>${fmt(e,0)} pronta${e===1?'':'s'}</span>${p.exemplo?'<span class="chip ex">exemplo</span>':''}</div></div></div>
+    <p class="fhead">Ficha de impressão</p>
+    ${ficha?`<dl class="ficha">${ficha}</dl>`:'<div class="tsub">Ainda sem ficha. Clique em Editar para anotar papel, tamanho e ajustes de cor.</div>'}
+    <div class="pfoot"><div class="queue${q?'':' zero'}"><b>${fmt(q,0)}</b><span>para imprimir</span></div><div>${editBtn('produto',p.id)}${q>0?`<button class="btn sm primary" data-act="produzir" data-id="${p.id}">Registrar impressão</button>`:''}</div></div></article>`}).join('');
   return `
-  <div class="head"><div><h1>Catálogo & impressão</h1><p>Cada produto com a arte, as peças prontas e a ficha de impressão. Registrar uma impressão desconta os insumos do estoque.</p></div>
-    <div class="tools"><label class="check"><input type="checkbox" id="fFila" data-bind="filaSo" ${ui.filaSo?'checked':''}> Só a fila de impressão (${filaN.length})</label><button class="btn primary" data-act="new" data-kind="produto">+ Novo produto</button></div></div>
+  <div class="head"><div><h1>Catálogo <em>&amp;</em> impressão</h1><p>Cada produto com a arte, as peças prontas e a ficha de impressão. Registrar uma impressão desconta os insumos do estoque.</p></div>
+    <div class="tools"><div class="seg" role="group" aria-label="Mostrar"><button data-act="setui" data-k="filaSo" data-v="" aria-pressed="${!ui.filaSo}">Todos <span>${S.produtos.length}</span></button><button data-act="setui" data-k="filaSo" data-v="1" aria-pressed="${!!ui.filaSo}">Na fila <span>${filaN.length}</span></button></div><button class="btn primary" data-act="new" data-kind="produto">${ic('plus')}Novo produto</button></div></div>
   ${ps.length?`<div class="cards">${cards}</div>`:ui.filaSo?empty('Fila de impressão vazia','Defina "quantidade para imprimir" em um produto para ele aparecer aqui.'):empty('Nenhum produto cadastrado','Adicione a arte, o papel e as configurações de cor que funcionam na sua impressora.','new','+ Novo produto')}`;
 }
 
@@ -394,7 +444,7 @@ function vInsumos(){
     <td><div class="row-actions"><button class="btn sm ghost" data-act="comprar" data-id="${i.id}">Comprei</button>${editBtn('insumo',i.id)}</div></td></tr>`}).join('');
   return `
   <div class="head"><div><h1>Insumos</h1><p>Estoque = estoque inicial + compras lançadas em Gastos − o que foi usado nas impressões registradas.</p></div>
-    <div class="tools"><button class="btn primary" data-act="new" data-kind="insumo">+ Novo insumo</button></div></div>
+    <div class="tools"><button class="btn primary" data-act="new" data-kind="insumo">${ic('plus')}Novo insumo</button></div></div>
   ${list.length?`<div class="tbl-wrap"><table><thead><tr><th>Insumo</th><th class="r">Em estoque</th><th>Situação</th><th class="r">Mínimo</th><th class="r">Custo / unid.</th><th class="r">Entrou</th><th class="r">Usado</th><th class="r">Valor parado</th><th></th></tr></thead><tbody>${rows}</tbody>
   <tfoot><tr><td colspan="7">Valor total em estoque</td><td class="r num">${brl(valor)}</td><td></td></tr></tfoot></table></div>`
   :empty('Nenhum insumo cadastrado','Cadastre papéis, bases de botton, argolas, embalagens… e use-os na receita de cada produto.','new','+ Novo insumo')}`;
@@ -412,8 +462,8 @@ function vGastos(){
     <td><div class="row-actions">${editBtn('gasto',g.id)}</div></td></tr>`}).join('');
   return `
   <div class="head"><div><h1>Gastos</h1><p>Tudo o que saiu do caixa da loja. Compras ligadas a um insumo entram no estoque e atualizam o custo médio.</p></div>
-    <div class="tools"><button class="icon-btn" data-act="gmes" data-d="-1" aria-label="Mês anterior">‹</button><input type="month" id="fgMes" value="${k}" data-bind="gMes" aria-label="Mês"><button class="icon-btn" data-act="gmes" data-d="1" aria-label="Próximo mês">›</button><button class="btn ghost" data-act="gall">${k?'Ver todos':'Só este mês'}</button><button class="btn primary" data-act="new" data-kind="gasto">+ Novo gasto</button></div></div>
-  <div class="kpis auto"><div class="kpi hl"><span>Total ${k?mesLabel(k):'geral'}</span><b class="num">${brl(tot)}</b><small>${gs.length} lançamento${gs.length===1?'':'s'}</small></div>
+    <div class="tools">${monthNav('gmes',k)}<button class="btn ghost" data-act="gall">${k?'Ver todos':'Só este mês'}</button><button class="btn primary" data-act="new" data-kind="gasto">${ic('plus')}Novo gasto</button></div></div>
+  <div class="kpis auto"><div class="kpi feat">${STAR}<span>Total ${k?mesLabel(k):'geral'}</span><b class="num">${brl(tot)}</b><small>${gs.length} lançamento${gs.length===1?'':'s'}</small></div>
     ${Object.entries(porCat).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div class="kpi"><span>${esc(c)}</span><b class="num">${brl(v)}</b><small>${pct(v/tot*100)} do total</small></div>`).join('')}</div>
   ${gs.length?`<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Entrou no estoque</th><th class="r">Valor</th><th class="r">Frete</th><th class="r">Total</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
   :empty('Nenhum gasto '+(k?'em '+mesLabel(k):'lançado'),'Lance compras de material, equipamentos, fretes e assinaturas para saber quanto a loja gasta por mês.','new','+ Novo gasto')}`;
@@ -428,7 +478,7 @@ function vPedidos(){
   const rows=os.map(o=>{const t=totPedido(o);return `<tr><td class="num">${dataBR(o.data)}</td>
     <td><div class="tname">#${esc(o.numero||'—')}${exChip(o)}</div><div class="tsub">${esc(o.cliente||'')}</div></td>
     <td>${esc(o.canal||'—')}</td>
-    <td><div class="tsub" style="max-width:240px">${(o.itens||[]).map(i=>`${fmt(i.qtd,0)}× ${esc(prodById(i.produtoId)?.nome||'produto removido')}`).join(', ')||'—'}</div></td>
+    <td><div class="tsub" style="min-width:200px;max-width:300px">${(o.itens||[]).map(i=>`${fmt(i.qtd,0)}× ${esc(prodById(i.produtoId)?.nome||'produto removido')}`).join(', ')||'—'}</div></td>
     <td class="r num"><b>${brl(t.total)}</b></td><td class="r num">${brl(t.liquido)}</td>
     <td>${o.nf?`<span class="chip good">NF ${esc(o.nf)}</span>`:'<span class="chip warn">sem NF</span>'}</td>
     <td><select data-act="status" data-id="${o.id}" id="st-${o.id}" aria-label="Status do pedido">${Object.entries(STATUS).map(([k,[l]])=>`<option value="${k}" ${o.status===k?'selected':''}>${l}</option>`).join('')}</select></td>
@@ -438,7 +488,7 @@ function vPedidos(){
   <div class="head"><div><h1>Pedidos</h1><p>Cada venda, por onde veio, quanto rendeu de verdade e a nota fiscal. Pedidos baixam o estoque de peças prontas.</p></div>
     <div class="tools"><select id="fStatus" data-bind="pStatus" aria-label="Filtrar status"><option value="abertos" ${ui.pStatus==='abertos'?'selected':''}>Em andamento</option><option value="" ${!ui.pStatus?'selected':''}>Todos</option>${Object.entries(STATUS).map(([k,[l]])=>`<option value="${k}" ${ui.pStatus===k?'selected':''}>${l}</option>`).join('')}</select>
     <select id="fCanal" data-bind="pCanal" aria-label="Filtrar canal"><option value="">Todos os canais</option>${canais.map(c=>`<option ${ui.pCanal===c?'selected':''}>${esc(c)}</option>`).join('')}</select>
-    <button class="btn primary" data-act="new" data-kind="pedido">+ Novo pedido</button></div></div>
+    <button class="btn primary" data-act="new" data-kind="pedido">${ic('plus')}Novo pedido</button></div></div>
   ${semNF?`<div class="note warn">${semNF} pedido${semNF>1?'s':''} sem nota fiscal registrada.</div>`:''}
   ${os.length?`<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Pedido</th><th>Canal</th><th>Itens</th><th class="r">Total</th><th class="r">Líquido</th><th>Nota fiscal</th><th>Status</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`
   :empty(S.pedidos.length?'Nenhum pedido com esse filtro':'Nenhum pedido ainda','Registre as vendas de cada canal para acompanhar faturamento e estoque.','new','+ Novo pedido')}`;
@@ -453,7 +503,7 @@ function vProducao(){
     <td><div class="row-actions">${delBtn('producoes',x.id)}</div></td></tr>`}).join('');
   return `
   <div class="head"><div><h1>Produção</h1><p>Cada lote impresso ou montado. Registrar um lote soma peças prontas e desconta os insumos pela receita do produto.</p></div>
-    <div class="tools"><button class="btn primary" data-act="new" data-kind="producao">+ Registrar lote</button></div></div>
+    <div class="tools"><button class="btn primary" data-act="new" data-kind="producao">${ic('plus')}Registrar lote</button></div></div>
   ${ls.length?`<div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Produto</th><th class="r">Peças</th><th>Insumos usados</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
   <div class="note">Excluir um lote devolve os insumos ao estoque e tira as peças prontas.</div>`
   :empty('Nenhum lote registrado','Quando imprimir ou montar peças, registre aqui para o estoque de insumos se atualizar sozinho.','new','+ Registrar lote')}`;
@@ -476,16 +526,16 @@ function vTarefas(){
   const pend=ts.filter(t=>!t.feito),feitas=ts.filter(t=>t.feito).sort((a,b)=>(b.feitoEm||'').localeCompare(a.feitoEm||''));
   const ord=(a,b)=>(a.prazo||'9999').localeCompare(b.prazo||'9999')||(PRIORIDADES[b.prioridade]||PRIORIDADES.media)[2]-(PRIORIDADES[a.prioridade]||PRIORIDADES.media)[2]||(a.criadoEm||'').localeCompare(b.criadoEm||'');
   const grupos=[['Atrasadas',t=>t.prazo&&t.prazo<h],['Hoje',t=>t.prazo===h],['Próximos 7 dias',t=>t.prazo>h&&t.prazo<=em7],['Mais para frente',t=>t.prazo>em7],['Sem prazo',t=>!t.prazo]];
-  const blocoP=grupos.map(([n,f])=>{const g=pend.filter(f).sort(ord);return g.length?`<section class="tgroup"><h2>${n} <small>${g.length}</small></h2><div class="tlist">${g.map(taskItem).join('')}</div></section>`:''}).join('');
-  const blocoF=feitas.length?`<section class="tgroup"><h2>Concluídas <small>${feitas.length}</small><button class="btn sm ghost danger" data-act="limparFeitas">Apagar concluídas</button></h2><div class="tlist">${feitas.map(taskItem).join('')}</div></section>`:'';
+  const blocoP=grupos.map(([n,f])=>{const g=pend.filter(f).sort(ord);return g.length?`<section class="tgroup${n==='Atrasadas'?' late':''}"><h2>${n} <span class="count">${g.length}</span></h2><div class="tlist">${g.map(taskItem).join('')}</div></section>`:''}).join('');
+  const blocoF=feitas.length?`<section class="tgroup"><h2>Concluídas <span class="count">${feitas.length}</span><button class="btn sm ghost danger" data-act="limparFeitas">Apagar concluídas</button></h2><div class="tlist">${feitas.map(taskItem).join('')}</div></section>`:'';
   const tags=[...new Set([...ETIQUETAS,...S.tarefas.map(t=>t.etiqueta).filter(Boolean)])];
   const corpo=ui.tFiltro==='feitas'?blocoF:ui.tFiltro==='todas'?blocoP+blocoF:blocoP;
   const vazioTxt=!S.tarefas.length?empty('Nenhuma tarefa ainda','Anote o que precisa fazer: imprimir um lote, responder um cliente, comprar papel, postar no Instagram.')
     :empty(ui.tFiltro==='feitas'?'Nenhuma tarefa concluída':'Nada pendente por aqui','Use o campo acima para adicionar uma tarefa.');
   return `
-  <div class="head"><span class="spark" style="width:16px;height:16px;right:30%;top:0;color:var(--pink)" aria-hidden="true"></span>
-    <div><h1>Lista de <em class="lime">tarefas</em></h1><p>${pend.length} pendente${pend.length===1?'':'s'}${tarefasUrgentes().length?` · ${tarefasUrgentes().length} para hoje ou atrasada${tarefasUrgentes().length===1?'':'s'}`:''}. Clique no círculo para concluir.</p></div>
-    <div class="tools"><select id="fTFiltro" data-bind="tFiltro" aria-label="Mostrar"><option value="pendentes" ${ui.tFiltro==='pendentes'?'selected':''}>Pendentes</option><option value="feitas" ${ui.tFiltro==='feitas'?'selected':''}>Concluídas</option><option value="todas" ${ui.tFiltro==='todas'?'selected':''}>Todas</option></select>
+  <div class="head">
+    <div><h1>Lista de <em>tarefas</em></h1><p>${pend.length} pendente${pend.length===1?'':'s'}${tarefasUrgentes().length?` · ${tarefasUrgentes().length} para hoje ou atrasada${tarefasUrgentes().length===1?'':'s'}`:''}. Marque a caixinha para concluir.</p></div>
+    <div class="tools"><div class="seg" role="group" aria-label="Mostrar">${[['pendentes','Pendentes'],['feitas','Concluídas'],['todas','Todas']].map(([v,l])=>`<button data-act="setui" data-k="tFiltro" data-v="${v}" aria-pressed="${ui.tFiltro===v}">${l}</button>`).join('')}</div>
     <select id="fTTag" data-bind="tTag" aria-label="Etiqueta"><option value="">Todas as etiquetas</option>${tags.map(t=>`<option ${ui.tTag===t?'selected':''}>${esc(t)}</option>`).join('')}</select></div></div>
   <form class="quickadd" id="taskQuick" autocomplete="off">
     <input id="tq-titulo" placeholder="Nova tarefa… ex.: imprimir bottons do pedido 1042" aria-label="Nova tarefa" maxlength="200">
@@ -729,9 +779,13 @@ document.addEventListener('click',async e=>{
   const b=e.target.closest('[data-act]');if(!b||b.tagName==='SELECT')return;
   const a=b.dataset.act;
   if(a!=='del'&&a!=='limparEx'&&a!=='limparFeitas'&&armed){armed.classList.remove('armed');armed.textContent=armed.dataset.lbl;armed=null}
-  if(a==='tab'){ui.tab=b.dataset.v;saveUi();try{history.replaceState(null,'','#'+ui.tab)}catch(_){}render();window.scrollTo(0,0)}
-  else if(a==='mes'){ui.mes=shiftMonth(ui.mes,+b.dataset.d);render()}
-  else if(a==='gmes'){ui.gMes=shiftMonth(ui.gMes||today().slice(0,7),+b.dataset.d);render()}
+  if(a==='tab'){ui.tab=b.dataset.v;saveUi();document.body.classList.remove('menu-open');try{history.replaceState(null,'','#'+ui.tab)}catch(_){}render();window.scrollTo(0,0)}
+  else if(a==='fila'){ui.filaSo=true;ui.tab='catalogo';saveUi();render();window.scrollTo(0,0)}
+  else if(a==='setui'){ui[b.dataset.k]=b.dataset.k==='filaSo'?!!b.dataset.v:b.dataset.v;saveUi();render()}
+  else if(a==='menu'){document.body.classList.toggle('menu-open')}
+  else if(a==='theme'){trocarTema()}
+  else if(a==='mes'){ui.mes=+b.dataset.d?shiftMonth(ui.mes,+b.dataset.d):today().slice(0,7);render()}
+  else if(a==='gmes'){ui.gMes=+b.dataset.d?shiftMonth(ui.gMes||today().slice(0,7),+b.dataset.d):today().slice(0,7);render()}
   else if(a==='gall'){ui.gMes=ui.gMes?'':today().slice(0,7);render()}
   else if(a==='toggle'){ui.open[b.dataset.id]=!ui.open[b.dataset.id];render()}
   else if(a==='new'||a==='edit'){const k=b.dataset.kind,id=a==='edit'?b.dataset.id:null;({insumo:formInsumo,produto:formProduto,gasto:formGasto,pedido:formPedido,producao:()=>formProducao(),tarefa:formTarefa})[k](id)}
@@ -775,7 +829,7 @@ document.addEventListener('submit',e=>{
   if(e.target.id==='taskQuick'){const ti=$('#tq-titulo').value.trim();if(!ti){toast('Escreva a tarefa antes de adicionar.');$('#tq-titulo').focus();return}save('tarefas',newId(),{titulo:ti,prazo:$('#tq-prazo').value,prioridade:$('#tq-pri').value,etiqueta:ui.tTag||'',notas:'',feito:false,criadoEm:new Date().toISOString()}).then(()=>{toast('Tarefa adicionada');const i=$('#tq-titulo');if(i){i.value='';i.focus()}}).catch(falhou)}
   if(e.target.id==='cfgForm'){const fd=Object.fromEntries(new FormData(e.target));saveConfig({...S.config,...fd}).then(()=>toast('Ajustes salvos')).catch(falhou)}
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape'&&drawer)closeDrawer()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(drawer)closeDrawer();else document.body.classList.remove('menu-open')}});
 const tip=$('#tip');
 document.addEventListener('mouseover',e=>{const t=e.target.closest&&e.target.closest('[data-tip]');if(!t){tip.hidden=true;return}tip.innerHTML=t.dataset.tip;tip.hidden=false});
 document.addEventListener('mousemove',e=>{if(!tip.hidden){const x=Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8);tip.style.left=x+'px';tip.style.top=(e.clientY+14)+'px'}});

@@ -3,23 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0D0C10">
+<meta name="theme-color" content="#FAF5EF">
 <meta name="robots" content="noindex">
 <title>Painel da Lojinha</title>
+<script>try{var t=localStorage.getItem('painel-tema');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t}catch(e){}</script>
 <link rel="icon" href="logo.webp" type="image/webp">
 <link rel="apple-touch-icon" href="logo.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Unbounded:wght@500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Geist:wght@400..700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <section class="login" id="login" hidden>
-  <span class="burst" style="width:90px;height:90px;right:12%;top:14%;color:var(--butter)" aria-hidden="true"></span>
-  <span class="spark" style="width:34px;height:34px;left:14%;top:24%;color:var(--lime)" aria-hidden="true"></span>
-  <span class="spark" style="width:18px;height:18px;left:22%;bottom:18%;color:var(--lilac)" aria-hidden="true"></span>
-  <span class="spark" style="width:22px;height:22px;right:20%;bottom:22%;color:var(--pink)" aria-hidden="true"></span>
+  <span class="spark" style="width:120px;height:120px;right:9%;top:10%" aria-hidden="true"></span>
+  <span class="spark" style="width:44px;height:44px;left:12%;top:22%" aria-hidden="true"></span>
+  <span class="spark" style="width:26px;height:26px;left:20%;bottom:16%" aria-hidden="true"></span>
+  <span class="spark" style="width:60px;height:60px;right:18%;bottom:14%" aria-hidden="true"></span>
   <form class="login-card" id="loginForm">
     <div class="logo"><img src="logo.webp" alt=""></div>
     <h1 id="loginTitle">Entrar no painel</h1>
@@ -33,23 +34,32 @@
 </section>
 
 <div id="app" hidden>
-  <header class="top">
-    <div class="top-in">
-      <div class="brand"><div class="logo"><img src="logo.webp" alt=""></div><b id="shopName">Minha lojinha</b></div>
-      <nav class="nav" id="nav" aria-label="Seções"></nav>
-      <div class="who">
-        <div class="store-state" id="storeState"><i></i><span>Conectando…</span></div>
-        <button class="btn sm" data-act="logout" id="logoutBtn" hidden>Sair</button>
+  <aside class="side" id="side" aria-label="Menu">
+    <div class="brand"><div class="logo"><img src="logo.webp" alt=""></div><div><b id="shopName">Minha lojinha</b><small>Painel da loja</small></div></div>
+    <nav class="nav" id="nav" aria-label="Seções"></nav>
+    <div class="side-foot">
+      <div class="store-state" id="storeState"><i></i><span>Conectando…</span></div>
+      <div class="side-actions">
+        <button class="btn sm ghost" data-act="theme" id="themeBtn"></button>
+        <button class="btn sm ghost" data-act="logout" id="logoutBtn" hidden>Sair</button>
       </div>
     </div>
-    <div class="demo-bar" id="demoBar" hidden>Modo demonstração: os dados ficam só neste navegador. Configure o Supabase em <span class="mono">config.js</span> para salvar na nuvem.</div>
+  </aside>
+  <div class="side-scrim" data-act="menu" aria-hidden="true"></div>
+  <header class="mtop">
+    <button class="icon-btn" data-act="menu" aria-label="Abrir menu" id="menuBtn"></button>
+    <div class="brand"><div class="logo"><img src="logo.webp" alt=""></div><div><b id="mTitle">Visão geral</b><small id="mShop">Minha lojinha</small></div></div>
   </header>
-  <main><div class="wrap" id="view"></div></main>
+  <main>
+    <div class="demo-bar" id="demoBar" hidden>Modo demonstração: os dados ficam só neste navegador. Configure o Supabase em <span class="mono">config.js</span> para salvar na nuvem.</div>
+    <div class="wrap" id="view"></div>
+  </main>
+  <nav class="bnav" id="bnav" aria-label="Atalhos"></nav>
 </div>
 
 <div id="drawerRoot"></div>
 <div id="tip" hidden></div>
-<div id="toast" class="toast" hidden></div>
+<div id="toast" class="toast" role="status" hidden></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
