@@ -299,7 +299,7 @@ function renderNav(){
   $('#themeSeg').innerHTML=temaOpcoes(true);
   const escuro=temaEscuro(),mt=$('#mThemeBtn');
   mt.innerHTML=ic(escuro?'sun':'moon');mt.setAttribute('aria-label',escuro?'Usar tema claro':'Usar tema escuro');mt.title=mt.getAttribute('aria-label');
-  const meta=document.querySelector('meta[name=theme-color]');if(meta)meta.content=escuro?'#110F14':'#FAF5EF';
+  const meta=document.querySelector('meta[name=theme-color]');if(meta)meta.content=getComputedStyle(document.documentElement).getPropertyValue('--color-bg').trim()||(escuro?'#0C0C0D':'#F2F2F2');
   const st=$('#storeState');
   st.className='store-state '+(mode==='nuvem'?'ok':mode==='demo'?'demo':'');
   st.querySelector('span').textContent=mode==='nuvem'?(user?.email||'Conectado'):mode==='demo'?'Demonstração':'Conectando…';
@@ -344,7 +344,7 @@ const monthNav=(act,k)=>{const atual=today().slice(0,7);return `<div class="mont
 const exChip=r=>r.exemplo?' <span class="chip ex">exemplo</span>':'';
 const empty=(t,s,act,lbl)=>`<div class="empty"><b>${t}</b><span>${s}</span>${act?`<button class="btn primary" data-act="${act}">${String(lbl).replace(/^\+ /,ic('plus'))}</button>`:''}</div>`;
 const imgSrc=p=>imgUrl(p.imagem);
-const avatar=(p,cls='',st='')=>{const s=imgSrc(p);return `<div class="pimg ${cls}" ${st?`style="${st}"`:''}>${s?`<img src="${esc(s)}" alt="" onerror="this.remove()">`:esc((p.nome||'?').trim().charAt(0).toUpperCase())}</div>`};
+const avatar=(p,cls='')=>{const s=imgSrc(p);return `<div class="pimg ${cls}">${s?`<img src="${esc(s)}" alt="" onerror="this.remove()">`:esc((p.nome||'?').trim().charAt(0).toUpperCase())}</div>`};
 const delBtn=(col,id)=>`<button type="button" class="btn sm ghost danger" data-act="del" data-col="${col}" data-id="${id}">Excluir</button>`;
 const editBtn=(kind,id)=>`<button type="button" class="btn sm ghost" data-act="edit" data-kind="${kind}" data-id="${id}">Editar</button>`;
 
@@ -363,8 +363,8 @@ function vVisao(){
   const y=v=>B-(v/top)*(B-T);
   const bar=(x,v,col)=>{const h=B-y(v);if(h<=0)return'';const r=Math.min(3,h);return `<path d="M${x},${B} L${x},${y(v)+r} Q${x},${y(v)} ${x+r},${y(v)} L${x+bw-r},${y(v)} Q${x+bw},${y(v)} ${x+bw},${y(v)+r} L${x+bw},${B} Z" fill="${col}"/>`};
   let ticks='';for(let v=0;v<=top+1e-9;v+=step)ticks+=`<line class="grid" x1="${L}" x2="${W-8}" y1="${y(v)}" y2="${y(v)}"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end">${fmtK(v)}</text>`;
-  const bars=data.map((d,i)=>{const cx=L+cw*i+cw/2;return bar(cx-bw-1,d.vendas,'var(--s1)')+bar(cx+1,d.gastos,'var(--s2)')+
-    `<text x="${cx}" y="${B+18}" text-anchor="middle" ${d.k===ui.mes?'style="fill:var(--ink);font-weight:800"':''}>${mesLabel(d.k)}</text>`+
+  const bars=data.map((d,i)=>{const cx=L+cw*i+cw/2;return bar(cx-bw-1,d.vendas,'var(--color-chart-1)')+bar(cx+1,d.gastos,'var(--color-chart-2)')+
+    `<text x="${cx}" y="${B+18}" text-anchor="middle" ${d.k===ui.mes?'class="is-current"':''}>${mesLabel(d.k)}</text>`+
     `<rect class="hit" x="${L+cw*i+2}" y="${T}" width="${cw-4}" height="${B-T}" data-tip="<b>${mesLabel(d.k)}</b><br>Vendas: ${brl(d.vendas)}<br>Gastos: ${brl(d.gastos)}<br>Lucro: ${brl(d.lucro)}<br>Caixa: ${brl(d.saldo)}"/>`}).join('');
   // alertas: o que pede uma ação, cada um com o botão que resolve
   const al=[];
@@ -409,7 +409,7 @@ function vVisao(){
     <section class="panel"><h2>Precisa de atenção <span class="count${al.length?' hot':''}">${al.length}</span></h2>
       <div class="alerts">${al.length?al.join(''):`<div class="alldone">${ic('check')}Tudo em dia: nenhum insumo acabando, nenhum pedido em aberto e fila de impressão vazia.</div>`}</div></section>
     <section class="panel"><h2>Vendas × gastos <small>últimos 6 meses</small></h2>
-      <div class="legend"><span><i style="background:var(--s1)"></i>Vendas</span><span><i style="background:var(--s2)"></i>Gastos</span></div>
+      <div class="legend"><span><i class="c1"></i>Vendas</span><span><i class="c2"></i>Gastos</span></div>
       <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Vendas e gastos por mês">${ticks}${bars}</svg>
     </section>
   </div>
@@ -428,7 +428,7 @@ function vPreco(){
   const c=cfg();
   const rows=ps.map(p=>{const k=custo(p),open=ui.open[p.id];
     const st=k.margemReal<15?'bad':k.margemReal<30?'warn':'good';
-    return `<tr><td><div style="display:flex;gap:10px;align-items:center">${avatar(p,'','width:38px;height:38px;font-size:15px;box-shadow:0 0 0 1px var(--line)')}<div><div class="tname">${esc(p.nome)}${exChip(p)}</div><div class="tsub">${esc(p.categoria||'')}${p.sku?' · '+esc(p.sku):''}</div></div></div></td>
+    return `<tr><td><div class="media">${avatar(p,'sm')}<div><div class="tname">${esc(p.nome)}${exChip(p)}</div><div class="tsub">${esc(p.categoria||'')}${p.sku?' · '+esc(p.sku):''}</div></div></div></td>
       <td class="r num"><b>${brl(k.total)}</b><div class="tsub">materiais ${brl(k.mat+k.perda)} · ${fmt(p.tempoMin,0)} min</div></td><td class="r num">${brl(k.redondo)}</td>
       <td class="r num"><b>${brl(k.preco)}</b>${k.manual?'<div class="tsub">definido por você</div>':'<div class="tsub">sugerido</div>'}</td>
       <td class="r num">${brl(k.lucro)}</td><td class="r"><span class="chip ${st}">${pct(k.margemReal)}</span></td>
@@ -465,7 +465,7 @@ function vCatalogo(){
     const pares=[['Tamanho',p.tamanho],['Peças por folha',p.pecasFolha],['Qualidade',p.qualidade],['Densidade',p.densidade],['Impressora',p.impressora]].filter(x=>tem(x[1]));
     const ficha=fi('Papel',p.papel,'wide')+pares.map(([l,v],i)=>fi(l,v,pares.length%2&&i===pares.length-1?'wide':'')).join('')+cor(p)+fi('Observações',p.obsImpressao,'wide');
     return `<article class="pcard">
-    <div class="ptop">${avatar(p,p.categoria==='Botton'?'':'sq')}<div style="min-width:0"><h3>${esc(p.nome)}</h3><div class="chips"><span class="chip">${esc(p.categoria||'Sem categoria')}</span><span class="chip ${e<=0?'bad':e<5?'warn':'good'}"><i></i>${fmt(e,0)} pronta${e===1?'':'s'}</span>${p.exemplo?'<span class="chip ex">exemplo</span>':''}</div></div></div>
+    <div class="ptop">${avatar(p,p.categoria==='Botton'?'':'sq')}<div><h3>${esc(p.nome)}</h3><div class="chips"><span class="chip">${esc(p.categoria||'Sem categoria')}</span><span class="chip ${e<=0?'bad':e<5?'warn':'good'}"><i></i>${fmt(e,0)} pronta${e===1?'':'s'}</span>${p.exemplo?'<span class="chip ex">exemplo</span>':''}</div></div></div>
     <p class="fhead">Ficha de impressão</p>
     ${ficha?`<dl class="ficha">${ficha}</dl>`:'<div class="tsub">Ainda sem ficha. Clique em Editar para anotar papel, tamanho e ajustes de cor.</div>'}
     <div class="pfoot"><div class="queue${q?'':' zero'}"><b>${fmt(q,0)}</b><span>para imprimir</span></div><div>${editBtn('produto',p.id)}${q>0?`<button class="btn sm primary" data-act="produzir" data-id="${p.id}">Registrar impressão</button>`:''}</div></div></article>`}).join('');
@@ -522,7 +522,7 @@ function vPedidos(){
   const rows=os.map(o=>{const t=totPedido(o);return `<tr><td class="num">${dataBR(o.data)}</td>
     <td><div class="tname">#${esc(o.numero||'—')}${exChip(o)}</div><div class="tsub">${esc(o.cliente||'')}</div></td>
     <td>${esc(o.canal||'—')}</td>
-    <td><div class="tsub" style="min-width:200px;max-width:300px">${(o.itens||[]).map(i=>`${fmt(i.qtd,0)}× ${esc(prodById(i.produtoId)?.nome||'produto removido')}`).join(', ')||'—'}</div></td>
+    <td><div class="tsub cell-items">${(o.itens||[]).map(i=>`${fmt(i.qtd,0)}× ${esc(prodById(i.produtoId)?.nome||'produto removido')}`).join(', ')||'—'}</div></td>
     <td class="r num"><b>${brl(t.total)}</b><div class="tsub">líquido ${brl(t.liquido)}</div></td>
     <td>${o.nf?`<span class="chip good">NF ${esc(o.nf)}</span>`:'<span class="chip warn">sem NF</span>'}</td>
     <td><select data-act="status" data-id="${o.id}" id="st-${o.id}" aria-label="Status do pedido">${Object.entries(STATUS).map(([k,[l]])=>`<option value="${k}" ${o.status===k?'selected':''}>${l}</option>`).join('')}</select></td>
@@ -597,7 +597,7 @@ function formTarefa(id){
     ${F('prazo','Prazo',t.prazo,{type:'date'})}
     ${F('prioridade','Prioridade',t.prioridade,{type:'select',opts:Object.entries(PRIORIDADES).map(([k,[l]])=>[k,l])})}
     ${F('etiqueta','Etiqueta',t.etiqueta,{list:'dlEtq',ph:'Ex.: Produção'})}
-    <label class="check" style="align-self:end;padding-bottom:10px"><input type="checkbox" name="feito" id="f-feito" ${t.feito?'checked':''}> Concluída</label>
+    <label class="check align-end"><input type="checkbox" name="feito" id="f-feito" ${t.feito?'checked':''}> Concluída</label>
     ${F('notas','Notas',t.notas,{type:'textarea',cls:'full'})}
   </div></fieldset>${dl('dlEtq',ETIQUETAS)}`,footDel('tarefas',id));
 }
@@ -606,7 +606,7 @@ function vAjustes(){
   const c=cfg(), ex=COLS.reduce((a,k)=>a+S[k].filter(r=>r.exemplo).length,0);
   return `
   <div class="head"><div><h1>Ajustes</h1><p>Os valores padrão usados na precificação. Cada produto pode sobrescrever margem e taxa.</p></div></div>
-  <form class="panel" id="cfgForm" style="display:flex;flex-direction:column;gap:16px;max-width:720px">
+  <form class="panel stack stack-lg narrow" id="cfgForm">
     <div class="fg">
       <label class="field full"><span>Nome da loja</span><input id="c-nome" name="nomeLoja" value="${esc(c.nomeLoja)}"></label>
       <label class="field"><span>Seu valor-hora (R$)</span><input id="c-vh" name="valorHora" inputmode="decimal" value="${esc(c.valorHora)}"><small>Quanto você quer ganhar por hora de trabalho.</small></label>
@@ -616,14 +616,14 @@ function vAjustes(){
     </div>
     <div><button class="btn primary" type="submit">Salvar ajustes</button></div>
   </form>
-  <section class="panel" style="max-width:720px;display:flex;flex-direction:column;gap:12px"><h2>Aparência</h2>
+  <section class="panel stack narrow"><h2>Aparência</h2>
     <div class="seg theme-seg big" role="group" aria-label="Tema">${temaOpcoes(false)}</div>
     <div class="tsub">${temaAtual()==='auto'?`Automático: segue o tema do seu celular ou computador (agora está ${temaEscuro()?'escuro':'claro'}).`:`Tema ${temaAtual()==='dark'?'escuro':'claro'} fixo neste navegador.`} A escolha vale só para este aparelho.</div>
   </section>
-  <section class="panel" style="max-width:720px;display:flex;flex-direction:column;gap:12px"><h2>Dados</h2>
+  <section class="panel stack narrow"><h2>Dados</h2>
     <div class="tsub">${mode==='nuvem'?`Conta: <b>${esc(user?.email||'')}</b>. Os dados ficam no Supabase e aparecem em qualquer aparelho em que você entrar.`:'Modo demonstração: os dados ficam só neste navegador. Preencha <span class="mono">config.js</span> com as chaves do Supabase para salvar na nuvem.'}
     ${S.produtos.length} produtos · ${S.insumos.length} insumos · ${S.gastos.length} gastos · ${S.pedidos.length} pedidos · ${S.producoes.length} lotes.</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="backup">Baixar backup (JSON)</button><label class="btn" for="f-restore">Restaurar backup…</label><input type="file" id="f-restore" accept="application/json,.json" hidden>
+    <div class="row"><button class="btn" data-act="backup">Baixar backup (JSON)</button><label class="btn" for="f-restore">Restaurar backup…</label><input type="file" id="f-restore" accept="application/json,.json" hidden>
     ${ex?`<button class="btn danger" data-act="limparEx">Apagar ${ex} registros de exemplo</button>`:'<button class="btn" data-act="exemplos">Carregar dados de exemplo</button>'}</div>
     <div class="tsub">Restaurar um backup adiciona os registros dele e substitui os que tiverem o mesmo código; nada é apagado.</div>
   </section>`;
@@ -779,7 +779,7 @@ function formProducao(prodId){
     ${F('data','Data',today(),{type:'date',req:true})}
     <label class="field"><span>Produto</span><select name="produtoId" id="f-produtoId" required>${prodOptions(prodId)}</select></label>
     ${F('qtd','Peças produzidas',p?num(p.qtdImprimir)||'':'',{dec:true,req:true})}
-    <label class="check" style="align-self:end;padding-bottom:9px"><input type="checkbox" name="zerarFila" id="f-zerar" ${p&&num(p.qtdImprimir)?'checked':''}> Tirar da fila de impressão</label>
+    <label class="check align-end"><input type="checkbox" name="zerarFila" id="f-zerar" ${p&&num(p.qtdImprimir)?'checked':''}> Tirar da fila de impressão</label>
     ${F('obs','Observações',p?'':'',{type:'textarea',cls:'full',ph:'Ex.: reimpressão, ajustei saturação…'})}
   </div></fieldset>
   <fieldset><legend>Vai descontar do estoque</legend><div id="consPrev" class="rows"></div></fieldset>`);
