@@ -55,6 +55,9 @@ function Layout() {
   const current = tabByPath(path);
   const [menuOpen, setMenuOpen] = useState(false);
   const shop = calc.cfg().nomeLoja || 'Minha lojinha';
+  // The last bottom-bar button reads "Mais", or the current screen's name when it is not in the bar.
+  const inBottomNav = BOTTOM_NAV.some(k => TABS[k] === current);
+  const moreLabel = inBottomNav ? 'Mais' : current.label;
   const badges: Partial<Record<TabKey, number>> = {
     pedidos: calc.db.pedidos.filter(isPending).length,
     tarefas: calc.tarefasUrgentes().length,
@@ -131,13 +134,14 @@ function Layout() {
         ))}
         <button
           type="button"
-          aria-label="Abrir menu com todas as seções"
-          aria-current={BOTTOM_NAV.some(k => TABS[k] === current) ? undefined : 'page'}
+          // The spoken name starts with the visible text, so voice control ("tap Mais") works.
+          aria-label={`${moreLabel}: abrir menu com todas as seções`}
+          aria-current={inBottomNav ? undefined : 'page'}
           onClick={() => setMenuOpen(true)}
           className={bottomItemClass}
         >
           <Icon name="menu" />
-          <span>{BOTTOM_NAV.some(k => TABS[k] === current) ? 'Mais' : current.label}</span>
+          <span>{moreLabel}</span>
         </button>
       </nav>
     </div>

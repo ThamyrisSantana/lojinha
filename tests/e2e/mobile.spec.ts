@@ -1,6 +1,6 @@
 // Phone layout (Pixel 7): bottom navigation, slide-out menu and the quick theme button.
 import { expect, test } from '@playwright/test';
-import { heading, openDashboard, sidebar } from './helpers';
+import { expectNoAxeViolations, heading, openDashboard, sidebar } from './helpers';
 
 test.beforeEach(async ({ page }) => {
   await openDashboard(page);
@@ -20,7 +20,7 @@ test('the bottom bar replaces the sidebar', async ({ page }) => {
 
 test('"Mais" opens the full menu and a screen closes it', async ({ page }) => {
   await bottomBar(page)
-    .getByRole('button', { name: /Abrir menu/ })
+    .getByRole('button', { name: /abrir menu/i })
     .click();
   await expect(menu(page)).toBeInViewport();
   await sidebar(page).getByRole('link', { name: 'Insumos' }).click();
@@ -32,12 +32,21 @@ test('the menu takes focus, closes with Escape and is skipped by Tab while close
   // Closed: its links are not reachable.
   await expect(sidebar(page).getByRole('link', { name: 'Insumos' })).toBeHidden();
   await bottomBar(page)
-    .getByRole('button', { name: /Abrir menu/ })
+    .getByRole('button', { name: /abrir menu/i })
     .click();
   await expect(sidebar(page).getByRole('link').first()).toBeFocused();
   await page.keyboard.press('Escape');
   await expect(menu(page)).not.toBeInViewport();
   await expect(sidebar(page).getByRole('link', { name: 'Insumos' })).toBeHidden();
+});
+
+test('the phone layout, closed and with the menu open, has no axe violations', async ({ page }) => {
+  await expectNoAxeViolations(page, 'phone, menu closed');
+  await bottomBar(page)
+    .getByRole('button', { name: /abrir menu/i })
+    .click();
+  await expect(sidebar(page).getByRole('link').first()).toBeFocused();
+  await expectNoAxeViolations(page, 'phone, menu open');
 });
 
 test('the page never scrolls sideways', async ({ page }) => {

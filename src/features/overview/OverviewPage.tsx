@@ -79,7 +79,7 @@ export default function OverviewPage() {
           }
         >
           <span>{profit.sales ? `margem ${pct(profit.margin)} · ${profitDelta}` : 'nenhuma venda neste mês'}</span>
-          <span data-calc className="text-2xs/[1.4] opacity-85">
+          <span data-calc className="text-2xs/[1.4]">
             vendas {brl(profit.sales)} − peças {brl(profit.goodsCost)} − taxas e envio {brl(profit.feesAndShipping)}
           </span>
         </Kpi>

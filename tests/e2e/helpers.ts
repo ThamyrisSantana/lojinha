@@ -1,4 +1,5 @@
 // Shared steps for the end-to-end tests.
+import AxeBuilder from '@axe-core/playwright';
 import { expect, type Page } from '@playwright/test';
 
 // The sample data (exemplo.json) covers August–October 2026, so the clock is fixed on
@@ -24,3 +25,10 @@ export const heading = (page: Page) => page.locator('main h1');
 export const kpiValue = (page: Page, label: string) => page.locator(`[data-kpi="${label}"] b`);
 /** The confirmation toast shown after saving. */
 export const toast = (page: Page) => page.getByTestId('toast');
+
+/** Runs axe (WCAG 2.2 A/AA rules) on the page and fails with a readable list of the problems found. */
+export async function expectNoAxeViolations(page: Page, label: string) {
+  const { violations } = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
+  const report = violations.map(v => `${v.id} (${v.impact}): ${v.help}\n  ${v.nodes.map(n => n.target.join(' ')).join('\n  ')}`);
+  expect(report, label).toEqual([]);
+}

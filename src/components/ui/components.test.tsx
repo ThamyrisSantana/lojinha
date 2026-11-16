@@ -1,5 +1,5 @@
 // Component tests (Testing Library): behavior users rely on, checked through what they see.
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -8,6 +8,7 @@ import { DECIMAL } from '@/lib/format';
 import { ConfirmButton } from './Button';
 import { TextField } from './Field';
 import { Segmented } from './Segmented';
+import { Avatar } from './Stats';
 
 test('a destructive button asks for confirmation before acting', async () => {
   const onConfirm = vi.fn();
@@ -70,4 +71,16 @@ test('a form field shows its error and links help and error to the input', async
   await user.type(input, '12,50');
   await user.click(screen.getByRole('button', { name: 'Salvar' }));
   expect(onValid).toHaveBeenCalledWith({ preco: '12,50' }, expect.anything());
+});
+
+test('an avatar shows the thumbnail, falls back to the original, then to the initial', () => {
+  const { container } = render(<Avatar name="botton gato" image="user-1/arte.png" />);
+  const img = () => container.querySelector('img');
+  expect(img()?.getAttribute('src')).toMatch(/\/user-1\/arte\.thumb\.webp$/);
+  // Uploaded before thumbnails existed: the thumbnail is missing.
+  fireEvent.error(img()!);
+  expect(img()?.getAttribute('src')).toMatch(/\/user-1\/arte\.png$/);
+  fireEvent.error(img()!);
+  expect(img()).toBeNull();
+  expect(container).toHaveTextContent('B');
 });

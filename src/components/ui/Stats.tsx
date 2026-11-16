@@ -1,6 +1,6 @@
 /* Data display: stat cards, horizontal bars and product avatars. */
 import { useState, type ReactNode } from 'react';
-import { imgUrl } from '@/data/images';
+import { imgUrl, thumbUrl } from '@/data/images';
 import { cn } from '@/lib/cn';
 import { Star } from './Icon';
 import { Tooltip } from './Tooltip';
@@ -93,8 +93,10 @@ export function Avatar({
   shape?: 'round' | 'square';
   size?: 'sm' | 'md';
 }) {
-  const [broken, setBroken] = useState(false);
-  const src = imgUrl(image);
+  // Tries the small thumbnail first, then the original (older uploads have no thumbnail),
+  // then shows the initial. Failed addresses are remembered, so a new image starts over.
+  const [failed, setFailed] = useState<string[]>([]);
+  const src = [thumbUrl(image), imgUrl(image)].find(u => u && !failed.includes(u));
   return (
     <div
       data-avatar
@@ -104,8 +106,15 @@ export function Avatar({
         size === 'md' ? 'size-16 text-xl' : 'size-9.5 text-sm',
       )}
     >
-      {src && !broken ? (
-        <img src={src} alt="" loading="lazy" decoding="async" className="size-full object-cover" onError={() => setBroken(true)} />
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="size-full object-cover"
+          onError={() => setFailed(f => [...f, src])}
+        />
       ) : (
         (name || '?').trim().charAt(0).toUpperCase()
       )}
