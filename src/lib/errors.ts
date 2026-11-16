@@ -10,6 +10,3 @@ export function saveErrorMessage(e: unknown): string {
   if (/Failed to fetch|NetworkError|network/i.test(msg)) return 'Sem conexão com o servidor. Confira a internet e tente de novo.';
   return 'Não foi possível salvar' + (msg ? ': ' + msg : '.');
 }
-
-/** Record ids: short, sortable by creation time and valid for the database (letters, digits, - and _). */
-export const newId = (): string => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);

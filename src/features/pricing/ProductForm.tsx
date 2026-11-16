@@ -25,7 +25,7 @@ import type { FormProps } from '@/features/forms/FormHost';
 import { DeleteButton } from '@/features/forms/DeleteButton';
 import { decimal, requiredText, stringValues, text, useSaveFromForm, useZodForm } from '@/features/forms/formKit';
 import { cn } from '@/lib/cn';
-import { newId } from '@/lib/errors';
+import { newId } from '@/lib/ids';
 import { brl, fmt, pct } from '@/lib/format';
 
 const line = z.object({ insumoId: text(), qtd: decimal(), rende: decimal() });

@@ -8,7 +8,7 @@ import { useDb } from '@/data/queries';
 import type { FormProps } from '@/features/forms/FormHost';
 import { DeleteButton } from '@/features/forms/DeleteButton';
 import { decimal, requiredText, stringValues, text, useSaveFromForm, useZodForm } from '@/features/forms/formKit';
-import { newId } from '@/lib/errors';
+import { newId } from '@/lib/ids';
 
 const schema = z.object({
   nome: requiredText('Dê um nome ao insumo.'),

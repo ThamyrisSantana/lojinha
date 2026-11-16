@@ -10,7 +10,6 @@ export type FormRequest =
   | { kind: 'pedido'; id?: string }
   | { kind: 'producao'; produtoId?: string }
   | { kind: 'tarefa'; id?: string; preset?: Partial<Tarefa> };
-export type FormKind = FormRequest['kind'];
 
 const SupplyForm = lazy(() => import('@/features/supplies/SupplyForm'));
 const ProductForm = lazy(() => import('@/features/pricing/ProductForm'));

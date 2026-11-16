@@ -28,6 +28,18 @@ test('"Mais" opens the full menu and a screen closes it', async ({ page }) => {
   await expect(menu(page)).not.toBeInViewport();
 });
 
+test('the menu takes focus, closes with Escape and is skipped by Tab while closed', async ({ page }) => {
+  // Closed: its links are not reachable.
+  await expect(sidebar(page).getByRole('link', { name: 'Insumos' })).toBeHidden();
+  await bottomBar(page)
+    .getByRole('button', { name: /Abrir menu/ })
+    .click();
+  await expect(sidebar(page).getByRole('link').first()).toBeFocused();
+  await page.keyboard.press('Escape');
+  await expect(menu(page)).not.toBeInViewport();
+  await expect(sidebar(page).getByRole('link', { name: 'Insumos' })).toBeHidden();
+});
+
 test('the page never scrolls sideways', async ({ page }) => {
   for (const path of ['/', '/catalogo', '/tarefas']) {
     await page.goto(`/#${path}`);

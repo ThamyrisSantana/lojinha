@@ -35,6 +35,22 @@ test('the browser tab title follows the screen', async ({ page }) => {
   await expect(page).toHaveTitle(/^Gastos · /);
 });
 
+test('addresses from the previous version still open the right screen', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-10-20T12:00:00-03:00'));
+  await page.goto('/#pedidos');
+  await expect(heading(page)).toHaveText('Pedidos');
+  await expect(page).toHaveURL(/#\/pedidos$/);
+  await page.goto('/#/nao-existe');
+  await expect(heading(page)).toHaveText('Como a lojinha está indo');
+});
+
+test('a link inside a page also moves focus to the new title', async ({ page }) => {
+  await openDashboard(page, '/precos');
+  await page.getByRole('link', { name: 'Mudar padrões' }).click();
+  await expect(heading(page)).toHaveText('Ajustes');
+  await expect(heading(page)).toBeFocused();
+});
+
 test('filters live in the address and survive a reload', async ({ page }) => {
   await openDashboard(page, '/pedidos');
   await page.getByLabel('Filtrar status').selectOption('entregue');

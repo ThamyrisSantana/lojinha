@@ -10,7 +10,7 @@ import { useCalc, useSave } from '@/data/queries';
 import type { FormProps } from '@/features/forms/FormHost';
 import { date, requiredDecimal, requiredText, text, useZodForm } from '@/features/forms/formKit';
 import { nowISO, today } from '@/lib/dates';
-import { newId } from '@/lib/errors';
+import { newId } from '@/lib/ids';
 import { fmt, num } from '@/lib/format';
 
 const schema = z.object({

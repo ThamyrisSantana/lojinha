@@ -31,7 +31,7 @@ export function DataTable<T>({
 }) {
   return (
     <div className="overflow-x-auto rounded-md border border-border bg-surface shadow-sm">
-      <table className="w-full min-w-[720px] border-collapse">
+      <table className="w-full min-w-[720px] border-collapse [&>tbody>tr:last-child>td]:border-b-0">
         {caption && <caption className="sr-only">{caption}</caption>}
         <thead>
           <tr>

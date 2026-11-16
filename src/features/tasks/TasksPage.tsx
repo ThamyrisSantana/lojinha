@@ -13,7 +13,7 @@ import { useCalc, useRemove, useSave } from '@/data/queries';
 import { useOpenForm } from '@/features/forms/FormHost';
 import { cn } from '@/lib/cn';
 import { addDays, dataBR, nowISO, prazoLabel, today } from '@/lib/dates';
-import { newId } from '@/lib/errors';
+import { newId } from '@/lib/ids';
 import { plural } from '@/lib/format';
 
 const route = getRouteApi('/tarefas');
@@ -56,7 +56,8 @@ export default function TasksPage() {
           confirmLabel="Confirmar: apagar concluídas"
           onConfirm={async () => {
             try {
-              await remove('tarefas', ...calc.db.tarefas.filter(t => t.feito).map(t => t.id));
+              // Only the completed tasks on screen (the tag filter applies).
+              await remove('tarefas', ...done.map(t => t.id));
               toast(`${done.length} ${plural(done.length, 'tarefa apagada', 'tarefas apagadas')}`);
             } catch {
               /* already reported */

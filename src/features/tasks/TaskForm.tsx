@@ -9,7 +9,7 @@ import type { FormProps } from '@/features/forms/FormHost';
 import { DeleteButton } from '@/features/forms/DeleteButton';
 import { requiredText, stringValues, text, useSaveFromForm, useZodForm } from '@/features/forms/formKit';
 import { nowISO } from '@/lib/dates';
-import { newId } from '@/lib/errors';
+import { newId } from '@/lib/ids';
 
 const schema = z.object({
   titulo: requiredText('Escreva a tarefa.'),

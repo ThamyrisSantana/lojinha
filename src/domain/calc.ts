@@ -9,7 +9,7 @@ import { filled, num } from '@/lib/format';
 import { isCounted, priorityOf } from './constants';
 import type { Config, Consumo, Db, Gasto, Insumo, Pedido, Produto, RecipeLine, Tarefa } from './types';
 
-export const DEFAULTS = { valorHora: 20, margem: 100, taxa: 12, perda: 5, nomeLoja: 'Minha lojinha' };
+const DEFAULTS = { valorHora: 20, margem: 100, taxa: 12, perda: 5, nomeLoja: 'Minha lojinha' };
 /** Settings with the defaults filled in (values may still be text typed by the user). */
 export type Settings = { nomeLoja: string } & Required<Omit<Config, 'nomeLoja'>>;
 

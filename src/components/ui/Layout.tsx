@@ -2,6 +2,8 @@
 import { useEffect, useRef, type ReactNode } from 'react';
 import { cn } from '@/lib/cn';
 
+let firstScreenShown = false;
+
 /** Page header: title, description, actions on the right. The title takes focus when the page opens. */
 export function PageHeader({
   title,
@@ -17,10 +19,17 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   const h1 = useRef<HTMLHeadingElement>(null);
-  // After choosing a screen in the menu, moving focus to the title tells keyboard and
-  // screen-reader users the screen changed (on first load focus stays at the top of the page).
+  // When the user moves to another screen (from the menu or a link in the page), focus goes to
+  // the new title, telling keyboard and screen-reader users the screen changed. The first screen
+  // after loading keeps focus at the top of the page, where the skip link is.
+  const handled = useRef(false);
   useEffect(() => {
-    if (document.activeElement?.closest('nav')) h1.current?.focus({ preventScroll: true });
+    // StrictMode runs effects twice in development; only the first run counts.
+    if (handled.current) return;
+    handled.current = true;
+    if (!firstScreenShown) firstScreenShown = true;
+    else if (!h1.current?.closest('dialog') && (document.activeElement === document.body || document.activeElement?.closest('nav')))
+      h1.current?.focus({ preventScroll: true });
   }, []);
   return (
     <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
@@ -92,6 +101,3 @@ export function Note({ tone, children }: { tone?: 'warn'; children: ReactNode })
 export const Sub = ({ children, className }: { children: ReactNode; className?: string }) => (
   <div className={cn('text-xs text-fg-subtle', className)}>{children}</div>
 );
-
-/** Text only screen readers read. */
-export const SrOnly = ({ children }: { children: ReactNode }) => <span className="sr-only">{children}</span>;

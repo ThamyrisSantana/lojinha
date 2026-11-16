@@ -12,7 +12,7 @@ import type { FormProps } from '@/features/forms/FormHost';
 import { DeleteButton } from '@/features/forms/DeleteButton';
 import { date, decimal, stringValues, text, useSaveFromForm, useZodForm } from '@/features/forms/formKit';
 import { today } from '@/lib/dates';
-import { newId } from '@/lib/errors';
+import { newId } from '@/lib/ids';
 import { brl, num, pct, plural } from '@/lib/format';
 
 const item = z.object({ produtoId: text(), qtd: decimal(), preco: decimal() });

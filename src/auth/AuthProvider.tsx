@@ -2,7 +2,8 @@
    between the login screen and the dashboard. */
 import type { User } from '@supabase/supabase-js';
 import { createContext, use, useEffect, useState, type ReactNode } from 'react';
-import { isDemoMode, supabase } from '@/data/supabase';
+import { useQueryClient } from '@tanstack/react-query';
+import { isDemoMode, openedFromRecoveryLink, supabase } from '@/data/supabase';
 
 export type AuthState =
   | { status: 'demo'; user: null }
@@ -18,21 +19,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(() =>
     isDemoMode
       ? { status: 'demo', user: null }
-      : location.hash.includes('type=recovery')
+      : openedFromRecoveryLink
         ? { status: 'recovery', user: null }
         : { status: 'loading', user: null },
   );
 
+  const queryClient = useQueryClient();
   useEffect(() => {
     if (!supabase) return;
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'PASSWORD_RECOVERY') setState({ status: 'recovery', user: session?.user ?? null });
       else if (session?.user)
         setState(s => (s.status === 'recovery' && event !== 'USER_UPDATED' ? s : { status: 'signedIn', user: session.user }));
-      else setState({ status: 'signedOut', user: null });
+      else {
+        // Signed out (or the session expired): forget the data that was loaded for that account.
+        queryClient.removeQueries();
+        setState({ status: 'signedOut', user: null });
+      }
     });
     return () => data.subscription.unsubscribe();
-  }, []);
+  }, [queryClient]);
 
   return <AuthContext value={state}>{children}</AuthContext>;
 }

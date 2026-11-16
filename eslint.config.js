@@ -17,7 +17,7 @@ export default tseslint.config(
         // Small helpers that live next to the component they belong to.
         {
           allowConstantExport: true,
-          allowExportNames: ['buttonClass', 'controlClass', 'optionValue', 'ICON_NAMES', 'toast', 'useOpenForm', 'useAuth', 'useUserId'],
+          allowExportNames: ['buttonClass', 'controlClass', 'ICON_NAMES', 'toast', 'useOpenForm', 'useAuth', 'useUserId'],
         },
       ],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],

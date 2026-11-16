@@ -17,8 +17,8 @@ export const text = () => z.string();
 export const date = (message = 'Escolha a data.') => z.string().min(1, message);
 
 /** React Hook Form set up with a Zod schema. */
-export function useZodForm<S extends z.ZodType<FieldValues, FieldValues>>(schema: S, defaultValues: DefaultValues<z.infer<S>>) {
-  return useForm<z.infer<S>>({ resolver: zodResolver(schema as never), defaultValues, mode: 'onTouched' });
+export function useZodForm<In extends FieldValues, Out extends FieldValues>(schema: z.ZodType<Out, In>, defaultValues: DefaultValues<In>) {
+  return useForm<In, unknown, Out>({ resolver: zodResolver(schema), defaultValues, mode: 'onTouched' });
 }
 
 /** Form values as strings: missing fields become '' so inputs are always controlled. */
@@ -32,11 +32,11 @@ export function stringValues<K extends string>(source: Partial<Record<K, unknown
  */
 export function useSaveFromForm<C extends Collection>(colecao: C, onClose: () => void) {
   const { save, isPending } = useSave();
-  const submit = async (record: RecordOf<C>, previous?: Partial<RecordOf<C>>, message = 'Salvo') => {
+  const submit = async (record: RecordOf<C>, previous?: Partial<RecordOf<C>>) => {
     const full = { ...record, criadoEm: previous?.criadoEm || nowISO(), ...(previous?.exemplo ? { exemplo: true } : {}) } as RecordOf<C>;
     try {
       await save(colecao, full);
-      toast(message);
+      toast('Salvo');
       onClose();
     } catch {
       /* already reported */

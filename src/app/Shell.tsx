@@ -1,6 +1,6 @@
 /* App shell: sidebar (desktop), top bar + bottom bar (phone), and the current screen. */
 import { Link, Outlet, useRouterState } from '@tanstack/react-router';
-import { Suspense, useEffect, useState, type ReactNode } from 'react';
+import { Suspense, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useAuth } from '@/auth/AuthProvider';
 import { Login } from '@/auth/Login';
 import { Button, IconButton } from '@/components/ui/Button';
@@ -18,7 +18,7 @@ import { useTheme, type ThemeChoice } from './useTheme';
 
 export function Shell() {
   const auth = useAuth();
-  if (auth.status === 'loading') return null;
+  if (auth.status === 'loading') return <Loading />;
   if (auth.status === 'signedOut' || auth.status === 'recovery')
     return <Login mode={auth.status === 'recovery' ? 'newPassword' : 'signIn'} />;
   return (
@@ -64,14 +64,27 @@ function Layout() {
     document.title = `${current.label} · ${shop}`;
   }, [current, shop]);
 
+  // Phone menu: focus its first link when it opens; Escape closes it.
+  const menu = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    menu.current?.querySelector<HTMLElement>('nav a')?.focus();
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setMenuOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [menuOpen]);
+
   return (
     <div className="grid min-h-screen grid-cols-[var(--container-sidebar)_minmax(0,1fr)] bg-[linear-gradient(to_right,var(--color-surface)_var(--container-sidebar),var(--color-bg)_var(--container-sidebar))] max-lg:block max-lg:bg-bg">
       <aside
+        ref={menu}
         aria-label="Menu"
         className={cn(
           'sticky top-0 z-45 flex h-screen flex-col gap-5 overflow-y-auto border-r border-border bg-surface px-3.5 pt-6 pb-4',
-          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:h-auto max-lg:w-[min(300px,86vw)] max-lg:border-r-0 max-lg:pt-[calc(24px+env(safe-area-inset-top,0px))] max-lg:shadow-lg max-lg:transition-transform max-lg:duration-250 max-lg:ease-out',
-          !menuOpen && 'max-lg:-translate-x-[102%]',
+          'max-lg:fixed max-lg:inset-y-0 max-lg:left-0 max-lg:h-auto max-lg:w-[min(300px,86vw)] max-lg:border-r-0 max-lg:pt-[calc(24px+env(safe-area-inset-top,0px))] max-lg:shadow-lg max-lg:duration-250 max-lg:ease-out',
+          // Closed on a phone it is also invisible, so Tab and screen readers skip its links.
+          // It becomes visible at once when opening, and only after sliding out when closing.
+          menuOpen ? 'max-lg:transition-transform' : 'max-lg:invisible max-lg:-translate-x-[102%] max-lg:transition-[transform,visibility]',
         )}
       >
         <Brand title={shop} subtitle="Painel da loja" />

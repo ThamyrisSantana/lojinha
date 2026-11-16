@@ -25,7 +25,7 @@ The sidebar groups the screens by topic. On mobile it becomes a slide-out menu p
 | | **Gastos** (expenses) | Everything paid out; purchases linked to a supply add to its stock. |
 | | **Ajustes** (settings) | Default hourly rate, margin, fees and waste; appearance; backup and restore. |
 
-Filters live in the address (for example `#/pedidos?status=enviado`), so a filtered view can be bookmarked and the back button works.
+Filters live in the address (for example `#/pedidos?status=enviado`), so a filtered view can be bookmarked and the back button works. Addresses from the previous version (`#pedidos`) still open the right screen.
 
 ### Appearance
 
@@ -155,7 +155,7 @@ src/
   features/<screen>/    each screen and its form
   lib/                  formatting, dates, class names, errors
   styles/index.css      Tailwind theme (design tokens) and base styles
-public/                 static files copied as they are (logo, headers, service-worker remover)
+public/                 static files copied as they are (logo, service-worker remover)
 supabase/schema.sql     table, access rules and image bucket
 tests/e2e/              end-to-end tests (Playwright)
 .storybook/             Storybook settings (theme switch, accessibility checks)

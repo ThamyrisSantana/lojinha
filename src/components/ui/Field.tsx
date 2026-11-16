@@ -81,7 +81,7 @@ export function TextField({
 }
 
 export type Option = string | { value: string; label: string };
-export const optionValue = (o: Option) => (typeof o === 'string' ? o : o.value);
+const optionValue = (o: Option) => (typeof o === 'string' ? o : o.value);
 const optionLabel = (o: Option) => (typeof o === 'string' ? o : o.label);
 
 export function SelectField({
