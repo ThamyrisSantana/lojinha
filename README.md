@@ -84,7 +84,7 @@ After deploying, go back to Supabase, open **Authentication → URL Configuratio
 
 ## 3. Run it locally
 
-Requires Node.js 18 or newer. There are no dependencies to install.
+Requires Node.js 18 or newer. The app itself has no dependencies to install (the only package, Playwright, is for the tests).
 
 Double-click `iniciar.bat`, or run:
 
@@ -97,6 +97,25 @@ With `config.js` filled in, the local copy uses the real Supabase project. With 
 
 > On Windows PowerShell, `npm start` may fail with "execution of scripts is disabled". Use `npm.cmd start`
 > or `node server.js` instead.
+
+## 4. Tests
+
+Requires Node.js 22. Two layers:
+
+| Command | What it checks | Tool |
+|---|---|---|
+| `npm run test:unit` | The calculations in `public/app.js`: supply cost, product cost and suggested price, stock, order totals, the month summary, monthly profit (and that profit per product adds up to it), task dates, backup and restore. | Node's built-in test runner, no install needed |
+| `npm run test:e2e` | The real dashboard in a browser, in demo mode: every screen, the overview numbers, creating/editing/deleting an order, tasks, settings, light/dark/auto theme, and the phone layout. | [Playwright](https://playwright.dev) |
+| `npm test` | Both. | |
+
+Setup once: `npm install`. The end-to-end tests use your installed Google Chrome (or run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.js`).
+
+**Automatic runs on Netlify.** Every Netlify build (production and pull request previews) runs `npm run test:unit` first (`netlify.toml`). If a unit test fails, the build fails, the pull request shows a failed Netlify check, and **the site is not published**. The end-to-end tests need a browser, so they run locally: run `npm run test:e2e` before merging changes to screens or flows.
+
+How they work:
+- **Unit tests** (`tests/unit/`) load the real `public/app.js` into an isolated Node context with a small fake browser (`tests/unit/load-app.js`), so the app doesn't need to change to be testable. Expected values are worked out by hand in the test comments, plus a regression check on `exemplo.json` (October 2026 profit R$ 413,56).
+- **End-to-end tests** (`tests/e2e/`) start `tests/e2e/demo-server.js`, which serves `public/` with an empty `config.js` (demo mode: sample data, no Supabase, no login). The clock is fixed on 20 October 2026 so the sample data always falls in the current month. Desktop runs at 1440×900; `mobile.spec.js` runs on a Pixel 7 viewport.
+- When an end-to-end test fails, Playwright keeps a trace in `test-results/`; open it with `npx playwright show-trace <path to trace.zip>`.
 
 ## Getting started in the dashboard
 
@@ -130,5 +149,8 @@ supabase/schema.sql  table, access rules and image bucket
 server.js            local server, for testing only
 docs/design-system.md  design system documentation
 docs/styleguide.html   visual catalog of tokens and components
+tests/unit/          unit tests of the calculations (node --test)
+tests/e2e/           end-to-end tests (Playwright) and the demo-mode test server
+playwright.config.js end-to-end test settings (desktop and phone)
 docs/prints/         screenshots used in the README and pull requests (not deployed)
 ```

@@ -1,5 +1,13 @@
 [build]
   publish = "public"
+  # Run the unit tests before every deploy (production and pull request previews).
+  # If a test fails, the build fails and Netlify does not publish.
+  command = "npm run test:unit"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # Only the Playwright test package is installed here; no browsers are needed for unit tests.
+  PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
 
 [[headers]]
   for = "/*"
