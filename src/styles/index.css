@@ -1,0 +1,190 @@
+/* =========================================================================
+   Painel da Lojinha — design tokens as the Tailwind theme.
+   Clean black-and-white look: light gray page, white cards, black as the only accent
+   (inverted in the dark theme, the default). Color only shows as small status dots.
+   Tailwind's default palette, sizes and radii are turned off: components can only use
+   these tokens (bg-surface, text-fg-muted, rounded-md, text-sm…). Docs: docs/design-system.md
+   ========================================================================= */
+@import 'tailwindcss';
+@import '@fontsource-variable/geist';
+
+@theme {
+  /* ---------- Colors (light theme; the dark theme overrides them below) ---------- */
+  --color-*: initial;
+  --color-bg: #f2f2f2; /* page background */
+  --color-surface: #ffffff; /* cards, panels, sidebar */
+  --color-surface-muted: #f2f2f2; /* inputs on cards, icon circles, toggles */
+  --color-surface-sunken: #f8f8f8; /* table headers, row hover, spec lists */
+  --color-border: #e7e7e7;
+  --color-border-strong: #d8d8d8;
+  --color-fg: #111111; /* text */
+  --color-fg-muted: #555555;
+  --color-fg-subtle: #6b6b6b;
+  --color-accent: #111111; /* primary buttons, active nav, featured card */
+  --color-accent-hover: #333333;
+  --color-on-accent: #ffffff;
+  --color-on-accent-muted: rgb(255 255 255 / 0.62);
+  --color-on-accent-danger: #ff8a8a;
+  --color-success: #1f8a4c;
+  --color-warning: #c27a00;
+  --color-danger: #c53434;
+  --color-on-danger: #ffffff;
+  --color-chart-1: #111111;
+  --color-chart-2: #cacaca;
+  --color-focus-ring: rgb(17 17 17 / 0.12);
+  --color-overlay: rgb(0 0 0 / 0.45);
+  --color-logo-bg: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* ---------- Typography ---------- */
+  --font-*: initial;
+  --font-sans: 'Geist Variable', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  --text-*: initial;
+  --text-2xs: 11px; /* overlines, badges, chart labels */
+  --text-xs: 12px; /* captions, helper text, chips, small buttons */
+  --text-sm: 13px; /* secondary text, buttons, table rows */
+  --text-base: 14px; /* body */
+  --text-md: 16px; /* card titles */
+  --text-lg: 18px; /* section titles */
+  --text-xl: 22px; /* drawer titles, small stats */
+  --text-2xl: 26px; /* stats, login title */
+  --text-3xl: 32px; /* page titles, featured stat */
+  --tracking-tighter: -0.03em;
+  --tracking-tight: -0.02em;
+  --tracking-wide: 0.06em;
+
+  /* ---------- Radius ---------- */
+  --radius-*: initial;
+  --radius-sm: 10px; /* inputs, small surfaces, tooltips */
+  --radius-md: 14px; /* cards, panels, tables, logos */
+  --radius-lg: 20px; /* drawers, dialogs, login card */
+
+  /* ---------- Elevation ---------- */
+  --shadow-*: initial;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.04);
+  --shadow-lg: 0 24px 60px -18px rgb(0 0 0 / 0.28);
+
+  /* ---------- Breakpoints (desktop-first: use max-lg:, max-sm:…) ---------- */
+  --breakpoint-*: initial;
+  --breakpoint-sm: 600px; /* phone */
+  --breakpoint-md: 700px; /* small tablet */
+  --breakpoint-lg: 960px; /* tablet: the sidebar becomes a drawer */
+  --breakpoint-xl: 1100px;
+  --breakpoint-2xl: 1280px;
+
+  /* ---------- Motion ---------- */
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-slide-in: slide-in 250ms var(--ease-out);
+  @keyframes slide-in {
+    from {
+      transform: translateX(28px);
+      opacity: 0.5;
+    }
+  }
+
+  /* ---------- Layout ---------- */
+  --container-sidebar: 252px;
+  --container-content: 1240px;
+  --container-drawer: 640px;
+  --container-form: 720px;
+  --container-readable: 68ch;
+}
+
+/* ---------- Dark theme (default) ---------- */
+/* Applied when the user picked "Escuro" (data-theme="dark") or "Automático" on a dark device. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #0c0c0d;
+  --color-surface: #161617;
+  --color-surface-muted: #212123;
+  --color-surface-sunken: #121213;
+  --color-border: #262628;
+  --color-border-strong: #37373a;
+  --color-fg: #f4f4f5;
+  --color-fg-muted: #a8a8ad;
+  --color-fg-subtle: #87878d;
+  --color-accent: #f4f4f5;
+  --color-accent-hover: #d8d8d8;
+  --color-on-accent: #111111;
+  --color-on-accent-muted: rgb(17 17 17 / 0.6);
+  --color-on-accent-danger: #c62828;
+  --color-success: #4cc27e;
+  --color-warning: #e3a64b;
+  --color-danger: #f06a6a;
+  --color-chart-1: #f4f4f5;
+  --color-chart-2: #4b4b50;
+  --color-focus-ring: rgb(255 255 255 / 0.16);
+  --shadow-sm: 0 1px 0 rgb(255 255 255 / 0.02) inset;
+  --shadow-lg: 0 30px 80px -10px rgb(0 0 0 / 0.75);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --color-bg: #0c0c0d;
+    --color-surface: #161617;
+    --color-surface-muted: #212123;
+    --color-surface-sunken: #121213;
+    --color-border: #262628;
+    --color-border-strong: #37373a;
+    --color-fg: #f4f4f5;
+    --color-fg-muted: #a8a8ad;
+    --color-fg-subtle: #87878d;
+    --color-accent: #f4f4f5;
+    --color-accent-hover: #d8d8d8;
+    --color-on-accent: #111111;
+    --color-on-accent-muted: rgb(17 17 17 / 0.6);
+    --color-on-accent-danger: #c62828;
+    --color-success: #4cc27e;
+    --color-warning: #e3a64b;
+    --color-danger: #f06a6a;
+    --color-chart-1: #f4f4f5;
+    --color-chart-2: #4b4b50;
+    --color-focus-ring: rgb(255 255 255 / 0.16);
+    --shadow-sm: 0 1px 0 rgb(255 255 255 / 0.02) inset;
+    --shadow-lg: 0 30px 80px -10px rgb(0 0 0 / 0.75);
+  }
+}
+
+/* ---------- Base ---------- */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+  html,
+  body {
+    min-height: 100%;
+  }
+  body {
+    @apply bg-bg font-sans text-base/normal text-fg antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  ::selection {
+    @apply bg-fg text-bg;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-fg;
+  }
+  /* Headings receive focus programmatically when the screen changes; no ring needed. */
+  h1[tabindex='-1']:focus {
+    outline: none;
+  }
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

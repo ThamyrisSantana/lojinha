@@ -1,10 +1,9 @@
-# Only JavaScript is formatted with Prettier; CSS and HTML keep their compact hand-written layout.
-*.css
-*.html
-*.md
-*.json
-docs/
+dist/
+storybook-static/
 node_modules/
 test-results/
 playwright-report/
-public/config.js
+docs/
+*.md
+package-lock.json
+src/data/exemplo.json

@@ -2,7 +2,7 @@
 
 A web dashboard to run a small handmade shop: pricing, a catalog with print settings, supplies, expenses, orders and production batches.
 
-It is a static site (HTML, CSS and JS, no build step) that stores data in **Supabase**, behind a login.
+It is a **React** single-page app that stores data in **Supabase**, behind a login.
 Without Supabase configured, it runs in **demo mode**, with sample data saved only in the browser.
 
 ![Dashboard overview (dark theme)](docs/prints/depois-visao.jpg)
@@ -25,38 +25,35 @@ The sidebar groups the screens by topic. On mobile it becomes a slide-out menu p
 | | **Gastos** (expenses) | Everything paid out; purchases linked to a supply add to its stock. |
 | | **Ajustes** (settings) | Default hourly rate, margin, fees and waste; appearance; backup and restore. |
 
+Filters live in the address (for example `#/pedidos?status=enviado`), so a filtered view can be bookmarked and the back button works.
+
 ### Appearance
 
-The look is a clean black-and-white style. Color only appears as small status dots (green ok, orange attention, red problem).
-
-- **Dark theme is the default.**
-- The theme can be switched to **Claro / Escuro / Automático** (light / dark / auto, following the device) in the sidebar footer, in **Ajustes → Aparência**, or with the sun/moon button in the mobile top bar.
-- The choice is saved per browser in `localStorage` (key `painel-tema`: `dark`, `light` or `auto`).
+A clean black-and-white style. Color only appears as small status dots (green ok, orange attention, red problem).
+**Dark theme is the default**; it can be switched to **Claro / Escuro / Automático** (light / dark / follows the device) in the sidebar footer, in **Ajustes → Aparência**, or with the sun/moon button on the phone. The choice is saved per browser (`localStorage` key `painel-tema`).
 
 | Light theme | Mobile |
 |---|---|
 | ![Overview, light theme](docs/prints/depois-visao-claro.jpg) | ![Mobile, dark theme](docs/prints/depois-celular.jpg) |
 
-More screenshots are in [`docs/prints/`](docs/prints/).
-
 ### Design system
 
-Colors, typography, spacing, radius and every reusable component are defined as design tokens and documented:
+Tokens (colors, type, radius, breakpoints) are the Tailwind theme in [`src/styles/index.css`](src/styles/index.css); the reusable components are in [`src/components/ui/`](src/components/ui/). Rules and usage: [`docs/design-system.md`](docs/design-system.md). Visual catalog with every component in both themes: **Storybook** (`npm run storybook`).
 
-- [`docs/design-system.md`](docs/design-system.md): principles, tokens, title and text roles, components and usage rules.
-- [`docs/styleguide.html`](docs/styleguide.html): a visual catalog of every token and component in both themes. Open the file in a browser (no server needed).
-- [`public/tokens.css`](public/tokens.css): the tokens themselves. Components in `public/style.css` use only these variables.
+## Tech stack
 
-#### Online versions
-
-The design system is also published as two pages on Claude. Both are private: the owner has to share them from the page's Share menu before others can open them.
-
-| Page | What it is | Use it to |
-|---|---|---|
-| [Design System](https://claude.ai/artifact/8bK2pvF5MFXNQtXGx6YQzB#readme) | The reference: brand book, every token with its usage note (light and dark values), and 21 components, each with a live preview and guidelines. Built in Claude's Design System format. | Look up rules and tokens, edit values and notes, and let Claude build new screens that follow the system. Its layout is fixed by the format, so it has no theme switch. |
-| [Styleguide](https://claude.ai/artifact/VHWzGdb6avitJKevH6XUpT) | A one-page visual catalog: the same content as `docs/styleguide.html`, with the app's real CSS. | Check how everything looks, with a **Claro / Escuro** button (top right) that switches the whole page. View only. |
-
-The source of truth stays in this repository (`public/tokens.css`, `public/style.css`, `docs/design-system.md`). When the design changes here, both pages need to be updated to match.
+| Area | Tools |
+|---|---|
+| UI | [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org) |
+| Build and dev server | [Vite](https://vite.dev) |
+| Styles | [Tailwind CSS 4](https://tailwindcss.com), with the design tokens as its theme; [Geist](https://vercel.com/font) font, self-hosted |
+| Routing | [TanStack Router](https://tanstack.com/router) (hash URLs, each screen loaded on demand, filters validated in the address) |
+| Data | [TanStack Query](https://tanstack.com/query) (one cached query, optimistic saves with rollback) over [Supabase](https://supabase.com) (Postgres, Auth, Storage) |
+| Forms | [React Hook Form](https://react-hook-form.com) + [Zod](https://zod.dev) (validation with messages in Portuguese) |
+| Component catalog | [Storybook 10](https://storybook.js.org) with accessibility checks (axe) |
+| Tests | [Vitest](https://vitest.dev) + [Testing Library](https://testing-library.com) (unit and component), [Playwright](https://playwright.dev) (end to end) |
+| Quality | ESLint (typescript-eslint, React Hooks rules), Prettier (with Tailwind class sorting) |
+| Hosting | Netlify (static `dist/`) |
 
 ## 1. Create the database in Supabase (free)
 
@@ -64,58 +61,58 @@ The source of truth stays in this repository (`public/tokens.css`, `public/style
 2. Open **SQL Editor → New query**, paste the contents of [`supabase/schema.sql`](supabase/schema.sql) and click **Run**.
 3. Create your user in **Authentication → Users → Add user → Create new user** (email and password; check *Auto Confirm User*).
 4. Close public sign-ups: **Authentication → Sign In / Providers → turn off "Allow new users to sign up"**.
-   This way only the users you create can log in.
-5. In **Project Settings → API**, copy the **Project URL** and the **anon public** key into [`public/config.js`](public/config.js).
+5. In **Project Settings → API**, copy the **Project URL** and the **anon public** key into `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in [`netlify.toml`](netlify.toml) (for the published site) and, to use them locally, in a `.env.local` file (see [`.env.example`](.env.example)).
 
 > The *anon* key is meant to live in the site. Data is protected by the login and by the database rules:
 > each account only sees its own records. Never put the *service_role* key in the site.
 
 ## 2. Deploy the site
 
-Only the `public/` folder is deployed. Pick one:
+The site is built into `dist/` (`npm run build`).
 
-- **Netlify** (simplest): drag the `public` folder onto https://app.netlify.com/drop. To update, drag it again.
-  If you connect the GitHub repository, `netlify.toml` already points to `public`.
-- **Vercel**: import the repository; `vercel.json` already points to `public`.
-- **Cloudflare Pages** or **GitHub Pages**: output directory `public`, no build command.
+- **Netlify** (in use): connect the GitHub repository; [`netlify.toml`](netlify.toml) runs the unit tests, builds and publishes `dist/`. Every pull request gets a preview.
+- **Vercel**: import the repository; [`vercel.json`](vercel.json) has the build command and output folder. Set the two `VITE_SUPABASE_*` variables in the project settings.
 
-After deploying, go back to Supabase, open **Authentication → URL Configuration** and set the site address as
-**Site URL**. That is where the "Esqueci minha senha" (forgot my password) link sends people.
+After deploying, go back to Supabase, open **Authentication → URL Configuration** and set the site address as **Site URL**. That is where the "Esqueci minha senha" (forgot my password) link sends people.
 
 ## 3. Run it locally
 
-Requires Node.js 18 or newer. The app itself has no dependencies to install (the packages, Playwright and Prettier, are only for tests and formatting).
-
-Double-click `iniciar.bat`, or run:
+Requires Node.js 22.
 
 ```bash
-node server.js
+npm install
 ```
 
-Then open http://localhost:3737.
-With `config.js` filled in, the local copy uses the real Supabase project. With it empty, it opens in demo mode.
+```bash
+npm run dev
+```
 
-> On Windows PowerShell, `npm start` may fail with "execution of scripts is disabled". Use `npm.cmd start`
-> or `node server.js` instead.
+Then open http://localhost:3737. On Windows you can also double-click `iniciar.bat`.
+Without a `.env.local` the app opens in demo mode; with one, it uses that Supabase project.
+
+> On Windows PowerShell, `npm` may fail with "execution of scripts is disabled". Use `npm.cmd` instead (`npm.cmd run dev`).
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Development server with instant reload |
+| `npm run build` | Type check + production build into `dist/` |
+| `npm run preview` | Serves the production build |
+| `npm run storybook` | Component catalog at http://localhost:6006 |
+| `npm run lint` · `npm run typecheck` | ESLint · TypeScript |
+| `npm run format` · `npm run format:check` | Prettier |
+| `npm run test:unit` · `npm run test:e2e` · `npm test` | Tests (below) |
 
 ## 4. Tests
 
-Requires Node.js 22. Two layers:
-
 | Command | What it checks | Tool |
 |---|---|---|
-| `npm run test:unit` | The calculations in `public/js/calc.js`: supply cost, product cost and suggested price, stock, order totals, the month summary, monthly profit (and that profit per product adds up to it), task dates, backup and restore. | Node's built-in test runner, no install needed |
-| `npm run test:e2e` | The real dashboard in a browser, in demo mode: every screen, the overview numbers, creating/editing/deleting an order, tasks, settings, light/dark/auto theme, the phone layout, and accessibility (dialog focus, keyboard tooltips, skip link, chart text). | [Playwright](https://playwright.dev) |
+| `npm run test:unit` | The calculations (`src/domain/calc.ts`): supply cost, product cost and suggested price, stock, order totals, the month summary, monthly profit (and that profit per product adds up to it), batches, tasks, backup and restore, plus a regression check on the sample data (October 2026 profit R$ 413,56). Also formatting helpers and UI components (confirmation button, toggle group, form field errors linked to the input). | Vitest + Testing Library |
+| `npm run test:e2e` | The production build in a browser, in demo mode: every screen, the overview numbers, creating/editing/deleting an order, form validation, filters in the address, tasks, settings, light/dark/auto theme, the phone layout, and accessibility (dialog focus, keyboard tooltips, skip link, chart text). | Playwright |
 | `npm test` | Both. | |
 
-Setup once: `npm install`. The end-to-end tests use your installed Google Chrome (or run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.js`).
+The end-to-end tests use your installed Google Chrome (or run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.ts`). They build the app and serve it on port 3999 with empty Supabase settings, so they always run in demo mode. The clock is fixed on 20 October 2026 so the sample data falls in the current month. Desktop runs at 1440×900; `mobile.spec.ts` on a Pixel 7.
 
-**Automatic runs on Netlify.** Every Netlify build (production and pull request previews) runs `npm run test:unit` first (`netlify.toml`). If a unit test fails, the build fails, the pull request shows a failed Netlify check, and **the site is not published**. The end-to-end tests need a browser, so they run locally: run `npm run test:e2e` before merging changes to screens or flows.
-
-How they work:
-- **Unit tests** (`tests/unit/`) load the real app scripts (`public/js/*.js`, in the order `index.html` lists them) into an isolated Node context with a small fake browser (`tests/unit/load-app.js`), so the app doesn't need to change to be testable. Expected values are worked out by hand in the test comments, plus a regression check on `exemplo.json` (October 2026 profit R$ 413,56).
-- **End-to-end tests** (`tests/e2e/`) start `tests/e2e/demo-server.js`, which serves `public/` with an empty `config.js` (demo mode: sample data, no Supabase, no login). The clock is fixed on 20 October 2026 so the sample data always falls in the current month. Desktop runs at 1440×900; `mobile.spec.js` runs on a Pixel 7 viewport.
-- When an end-to-end test fails, Playwright keeps a trace in `test-results/`; open it with `npx playwright show-trace <path to trace.zip>`.
+**Automatic runs on Netlify.** Every build (production and pull request previews) runs `npm run test:unit` and the type check first. If either fails, the build fails, the pull request shows a failed Netlify check, and **the site is not published**. End-to-end tests need a browser, so run `npm run test:e2e` locally before merging changes to screens or flows.
 
 ## Getting started in the dashboard
 
@@ -136,40 +133,31 @@ To remove it all at once: **Ajustes → Apagar registros de exemplo** (delete sa
 
 ## Code conventions
 
-- **No build step.** The scripts in `public/js/` are plain browser scripts that share one global scope; `index.html` loads them with `defer`, in order. Code that runs at load time only lives in `app.js`, the last one.
-- **Screens are built from shared components** (`components.js`): `pageHead`, `table`, `panel`, `seg`, `chip`, `btn`/`newBtn`/`editBtn`, `F` (form field)… A change to one of them applies to every screen. Anything coming from the data goes through `esc()` before it becomes HTML.
-- **Calculations live only in `calc.js`** and read the data in `S`. While a screen renders, expensive results (supply cost, product cost, month summary, profit) are cached and reused, then discarded.
-- **Clicks are handled in one place**: buttons carry `data-act`, and `ACTIONS` in `app.js` maps each action to its handler. Forms are registered in `KINDS` (`forms.js`).
-- **Accessibility**: form drawers are modal dialogs (focus moves in, the page behind is `inert`, Escape closes and focus returns); changing screens moves focus to the page title; tooltips also open on keyboard focus and their text is available to screen readers; the chart has a text alternative.
-- **Formatting**: [Prettier](https://prettier.io) for JavaScript (`.prettierrc.json`). Run `npm run format` before committing, or `npm run format:check` to check. CSS and HTML keep their compact hand-written layout.
-- Identifiers that already existed in Portuguese (`custo`, `resumoMes`…) are kept; new code, comments and docs are in English. Text the user sees stays in Portuguese.
+- **Layers.** `domain/` has the types and pure calculations (no React); `data/` talks to Supabase or the browser and exposes TanStack Query hooks; `components/ui/` has the reusable visual components; `features/` has one folder per screen with its page and form; `app/` has the shell, routes and theme.
+- **Data flow.** Screens read with `useDb()` / `useCalc()` and write with `useSave()` / `useRemove()`. Never call Supabase from a screen. Data is immutable: every change makes a new `Db`, so `createCalc(db)` can cache results safely.
+- **Stored format.** Records are saved exactly as before the React version (numbers typed in forms are kept as text, read with `num()`), so existing data keeps working.
+- **Forms.** React Hook Form + a Zod schema per form; fields come from `components/ui/Field.tsx` and saving from `features/forms/formKit.ts`. Forms open through `useOpenForm()` (`FormHost`).
+- **Styles.** Tailwind utilities with the design tokens only (no default palette); shared looks become components, not copied class lists.
+- **Accessibility** is part of each component (labels, focus, keyboard, text alternatives) and covered by end-to-end tests and Storybook's axe checks.
+- **Language.** Code, comments and docs in English; text the user sees in Portuguese. Identifiers that already existed in Portuguese (`custo`, `resumoMes`, field names like `valorHora`) are kept because they match the stored data.
 
 ## Project structure
 
 ```
-public/              the site (this is what gets deployed)
-  index.html         page shell and login screen
-  tokens.css         design tokens: colors (light and dark), type, spacing, radius, motion
-  style.css          components, built only from the tokens
-  js/                the app, plain scripts loaded in this order by index.html:
-    utils.js         formatting, dates, sorting and storage helpers
-    constants.js     option lists, order statuses and task priorities
-    store.js         data in memory, Supabase / demo storage, backup, images
-    calc.js          all calculations (cost, price, stock, month summary, profit)
-    components.js    shared UI pieces (page header, table, buttons, chips, form fields…)
-    views.js         one function per screen
-    forms.js         the side-drawer forms and saving them
-    app.js           navigation, rendering, theme, events, login and start-up
-  config.js          your Supabase project URL and anon key
-  exemplo.json       sample data
-  logo.webp          logo
-supabase/schema.sql  table, access rules and image bucket
-server.js            local server, for testing only
-docs/design-system.md  design system documentation
-docs/styleguide.html   visual catalog of tokens and components
-tests/unit/          unit tests of the calculations (node --test)
-tests/e2e/           end-to-end tests (Playwright) and the demo-mode test server
-.prettierrc.json     code formatting settings
-playwright.config.js end-to-end test settings (desktop and phone)
-docs/prints/         screenshots used in the README and pull requests (not deployed)
+index.html              page shell (applies the saved theme before the first paint)
+src/
+  main.tsx              starts React, TanStack Query and the router
+  app/                  shell (sidebar, top and bottom bars), routes, tabs, theme
+  auth/                 session (Supabase Auth) and the login screen
+  components/ui/        design-system components and their Storybook stories
+  data/                 repository (Supabase or demo), query hooks, backup, images, sample data
+  domain/               types, constants and calculations (+ unit tests)
+  features/<screen>/    each screen and its form
+  lib/                  formatting, dates, class names, errors
+  styles/index.css      Tailwind theme (design tokens) and base styles
+public/                 static files copied as they are (logo, headers, service-worker remover)
+supabase/schema.sql     table, access rules and image bucket
+tests/e2e/              end-to-end tests (Playwright)
+.storybook/             Storybook settings (theme switch, accessibility checks)
+docs/                   design system and screenshots (not deployed)
 ```

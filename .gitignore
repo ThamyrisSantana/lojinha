@@ -1,4 +1,6 @@
 node_modules/
+dist/
+storybook-static/
 data/
 .netlify/
 .vercel/
@@ -12,3 +14,4 @@ Thumbs.db
 # Test output
 test-results/
 playwright-report/
+!.env.example
