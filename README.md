@@ -84,7 +84,7 @@ After deploying, go back to Supabase, open **Authentication → URL Configuratio
 
 ## 3. Run it locally
 
-Requires Node.js 18 or newer. The app itself has no dependencies to install (the only package, Playwright, is for the tests).
+Requires Node.js 18 or newer. The app itself has no dependencies to install (the packages, Playwright and Prettier, are only for tests and formatting).
 
 Double-click `iniciar.bat`, or run:
 
@@ -104,8 +104,8 @@ Requires Node.js 22. Two layers:
 
 | Command | What it checks | Tool |
 |---|---|---|
-| `npm run test:unit` | The calculations in `public/app.js`: supply cost, product cost and suggested price, stock, order totals, the month summary, monthly profit (and that profit per product adds up to it), task dates, backup and restore. | Node's built-in test runner, no install needed |
-| `npm run test:e2e` | The real dashboard in a browser, in demo mode: every screen, the overview numbers, creating/editing/deleting an order, tasks, settings, light/dark/auto theme, and the phone layout. | [Playwright](https://playwright.dev) |
+| `npm run test:unit` | The calculations in `public/js/calc.js`: supply cost, product cost and suggested price, stock, order totals, the month summary, monthly profit (and that profit per product adds up to it), task dates, backup and restore. | Node's built-in test runner, no install needed |
+| `npm run test:e2e` | The real dashboard in a browser, in demo mode: every screen, the overview numbers, creating/editing/deleting an order, tasks, settings, light/dark/auto theme, the phone layout, and accessibility (dialog focus, keyboard tooltips, skip link, chart text). | [Playwright](https://playwright.dev) |
 | `npm test` | Both. | |
 
 Setup once: `npm install`. The end-to-end tests use your installed Google Chrome (or run `npx playwright install chromium` and remove `channel: 'chrome'` from `playwright.config.js`).
@@ -113,7 +113,7 @@ Setup once: `npm install`. The end-to-end tests use your installed Google Chrome
 **Automatic runs on Netlify.** Every Netlify build (production and pull request previews) runs `npm run test:unit` first (`netlify.toml`). If a unit test fails, the build fails, the pull request shows a failed Netlify check, and **the site is not published**. The end-to-end tests need a browser, so they run locally: run `npm run test:e2e` before merging changes to screens or flows.
 
 How they work:
-- **Unit tests** (`tests/unit/`) load the real `public/app.js` into an isolated Node context with a small fake browser (`tests/unit/load-app.js`), so the app doesn't need to change to be testable. Expected values are worked out by hand in the test comments, plus a regression check on `exemplo.json` (October 2026 profit R$ 413,56).
+- **Unit tests** (`tests/unit/`) load the real app scripts (`public/js/*.js`, in the order `index.html` lists them) into an isolated Node context with a small fake browser (`tests/unit/load-app.js`), so the app doesn't need to change to be testable. Expected values are worked out by hand in the test comments, plus a regression check on `exemplo.json` (October 2026 profit R$ 413,56).
 - **End-to-end tests** (`tests/e2e/`) start `tests/e2e/demo-server.js`, which serves `public/` with an empty `config.js` (demo mode: sample data, no Supabase, no login). The clock is fixed on 20 October 2026 so the sample data always falls in the current month. Desktop runs at 1440×900; `mobile.spec.js` runs on a Pixel 7 viewport.
 - When an end-to-end test fails, Playwright keeps a trace in `test-results/`; open it with `npx playwright show-trace <path to trace.zip>`.
 
@@ -134,6 +134,16 @@ To remove it all at once: **Ajustes → Apagar registros de exemplo** (delete sa
 - **Supply stock**: initial stock + purchases − what production batches consumed.
 - **Ready pieces**: initial stock + produced batches − orders (excluding cancelled ones).
 
+## Code conventions
+
+- **No build step.** The scripts in `public/js/` are plain browser scripts that share one global scope; `index.html` loads them with `defer`, in order. Code that runs at load time only lives in `app.js`, the last one.
+- **Screens are built from shared components** (`components.js`): `pageHead`, `table`, `panel`, `seg`, `chip`, `btn`/`newBtn`/`editBtn`, `F` (form field)… A change to one of them applies to every screen. Anything coming from the data goes through `esc()` before it becomes HTML.
+- **Calculations live only in `calc.js`** and read the data in `S`. While a screen renders, expensive results (supply cost, product cost, month summary, profit) are cached and reused, then discarded.
+- **Clicks are handled in one place**: buttons carry `data-act`, and `ACTIONS` in `app.js` maps each action to its handler. Forms are registered in `KINDS` (`forms.js`).
+- **Accessibility**: form drawers are modal dialogs (focus moves in, the page behind is `inert`, Escape closes and focus returns); changing screens moves focus to the page title; tooltips also open on keyboard focus and their text is available to screen readers; the chart has a text alternative.
+- **Formatting**: [Prettier](https://prettier.io) for JavaScript (`.prettierrc.json`). Run `npm run format` before committing, or `npm run format:check` to check. CSS and HTML keep their compact hand-written layout.
+- Identifiers that already existed in Portuguese (`custo`, `resumoMes`…) are kept; new code, comments and docs are in English. Text the user sees stays in Portuguese.
+
 ## Project structure
 
 ```
@@ -141,7 +151,15 @@ public/              the site (this is what gets deployed)
   index.html         page shell and login screen
   tokens.css         design tokens: colors (light and dark), type, spacing, radius, motion
   style.css          components, built only from the tokens
-  app.js             screens, calculations and Supabase connection
+  js/                the app, plain scripts loaded in this order by index.html:
+    utils.js         formatting, dates, sorting and storage helpers
+    constants.js     option lists, order statuses and task priorities
+    store.js         data in memory, Supabase / demo storage, backup, images
+    calc.js          all calculations (cost, price, stock, month summary, profit)
+    components.js    shared UI pieces (page header, table, buttons, chips, form fields…)
+    views.js         one function per screen
+    forms.js         the side-drawer forms and saving them
+    app.js           navigation, rendering, theme, events, login and start-up
   config.js          your Supabase project URL and anon key
   exemplo.json       sample data
   logo.webp          logo
@@ -151,6 +169,7 @@ docs/design-system.md  design system documentation
 docs/styleguide.html   visual catalog of tokens and components
 tests/unit/          unit tests of the calculations (node --test)
 tests/e2e/           end-to-end tests (Playwright) and the demo-mode test server
+.prettierrc.json     code formatting settings
 playwright.config.js end-to-end test settings (desktop and phone)
 docs/prints/         screenshots used in the README and pull requests (not deployed)
 ```

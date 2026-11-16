@@ -123,7 +123,7 @@
   <!-- ======================= ICONS ======================= -->
   <section class="sg-sec" id="icons">
     <h2 class="t-title">Icons</h2>
-    <p class="lead">24×24 stroke icons, 1.8px, round caps. Rendered with <span class="mono">ic(name)</span> in app.js.</p>
+    <p class="lead">24×24 stroke icons, 1.8px, round caps. Rendered with <span class="mono">ic(name)</span> from public/js/components.js.</p>
     <div class="sg-icons" id="iconGrid"></div>
   </section>
 
@@ -362,7 +362,7 @@
 </div>
 
 <script>
-// Icons: copy of the ICONS map in public/app.js (source of truth).
+// Icons: copy of the ICONS map in public/js/components.js (source of truth).
 const ICONS={
   visao:'<rect x="3" y="3" width="7" height="9" rx="2"/><rect x="14" y="3" width="7" height="5" rx="2"/><rect x="14" y="12" width="7" height="9" rx="2"/><rect x="3" y="16" width="7" height="5" rx="2"/>',
   tarefas:'<rect x="3" y="3" width="18" height="18" rx="5"/><path d="m8 12 3 3 5-6"/>',
@@ -380,6 +380,7 @@ const ICONS={
   moon:'<path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/>',
   auto:'<rect x="2" y="4" width="20" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
   check:'<path d="M20 6 9 17l-5-5"/>',
+  close:'<path d="M18 6 6 18M6 6l12 12"/>',
 };
 const ic=n=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${ICONS[n]||''}</svg>`;
 document.querySelectorAll('[data-ic]').forEach(e=>e.outerHTML=ic(e.dataset.ic));

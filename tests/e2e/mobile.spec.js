@@ -2,7 +2,9 @@
 const { test, expect } = require('@playwright/test');
 const { openDashboard } = require('./helpers');
 
-test.beforeEach(async ({ page }) => { await openDashboard(page); });
+test.beforeEach(async ({ page }) => {
+  await openDashboard(page);
+});
 
 test('the bottom bar replaces the sidebar', async ({ page }) => {
   await expect(page.locator('#bnav')).toBeVisible();
@@ -14,7 +16,10 @@ test('the bottom bar replaces the sidebar', async ({ page }) => {
 });
 
 test('"Mais" opens the full menu and a screen closes it', async ({ page }) => {
-  await page.locator('#bnav').getByRole('button', { name: /Abrir menu/ }).click();
+  await page
+    .locator('#bnav')
+    .getByRole('button', { name: /Abrir menu/ })
+    .click();
   await expect(page.locator('#side')).toBeInViewport();
   await page.locator('#nav').getByRole('button', { name: 'Insumos' }).click();
   await expect(page.locator('#view .head h1')).toHaveText('Insumos');
@@ -25,7 +30,9 @@ test('the page never scrolls sideways', async ({ page }) => {
   for (const tab of ['visao', 'catalogo', 'tarefas']) {
     await page.goto(`/#${tab}`);
     await page.reload();
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
     expect(overflow, tab).toBeLessThanOrEqual(0);
   }
 });

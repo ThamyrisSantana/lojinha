@@ -27,7 +27,7 @@ test('a new order shows up in the list and raises the month sales', async ({ pag
 
   await goTo(page, 'Visão geral');
   await expect(salesCard(page)).toHaveText(/612,30/); // 594,50 + 17,80
-  await expect(page.locator('.alert', { hasText: 'Pedido #2001' })).toBeVisible();          // new order needs attention
+  await expect(page.locator('.alert', { hasText: 'Pedido #2001' })).toBeVisible(); // new order needs attention
 });
 
 test('changing the status from the list saves it', async ({ page }) => {

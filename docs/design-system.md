@@ -5,7 +5,7 @@ The design system behind the dashboard: tokens, typography, spacing, components 
 - **Tokens:** [`public/tokens.css`](../public/tokens.css) — the single source of truth for every color, size and timing.
 - **Components:** [`public/style.css`](../public/style.css) — every component, built only from tokens.
 - **Visual catalog:** [`docs/styleguide.html`](styleguide.html) — every token and component rendered live, in both themes. Open the file in a browser (no server needed).
-- **Icons:** the `ICONS` map in [`public/app.js`](../public/app.js), rendered with `ic(name)`.
+- **Icons:** the `ICONS` map in [`public/js/components.js`](../public/js/components.js), rendered with `ic(name)`.
 
 The interface text is in Portuguese (pt-BR). Code, class names, tokens and these docs are in English.
 
@@ -202,7 +202,7 @@ Media queries can't read CSS variables, so breakpoints are written as numbers in
 ## 8. Iconography
 
 - Stroke icons on a 24×24 grid, `stroke-width: 1.8`, round caps and joins, `fill: none`, color from `currentColor`.
-- Render with `ic(name)` in `app.js` → `<svg class="i">`.
+- Render with `ic(name)` (`public/js/components.js`) → `<svg class="i">`.
 - Available: `visao`, `tarefas`, `preco`, `catalogo`, `insumos`, `gastos`, `pedidos`, `producao`, `ajustes`, `plus`, `menu`, `chevL`, `chevR`, `sun`, `moon`, `auto`, `check`, plus `STAR` (the logo's four-point star, filled).
 - Icons in lists sit in a gray circle (`.aic`, `.qa i`). Decorative icons get `aria-hidden="true"` (done by `ic()`).
 

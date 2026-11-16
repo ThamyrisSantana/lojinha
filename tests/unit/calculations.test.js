@@ -4,7 +4,8 @@ const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const { loadApp } = require('./load-app');
 
-const close = (actual, expected, msg) => assert.ok(Math.abs(actual - expected) < 1e-6, `${msg || ''} expected ${expected}, got ${actual}`);
+const close = (actual, expected, msg) =>
+  assert.ok(Math.abs(actual - expected) < 1e-6, `${msg || ''} expected ${expected}, got ${actual}`);
 const NBSP = ' ';
 
 // Fixture: two supplies, two products, purchases, a batch, orders and expenses.
@@ -12,19 +13,28 @@ const NBSP = ' ';
 function fixture() {
   return {
     insumos: [
-      { id: 'paper', nome: 'Papel', unidade: 'folha', custoManual: '2' },                       // no purchases → manual cost 2
+      { id: 'paper', nome: 'Papel', unidade: 'folha', custoManual: '2' }, // no purchases → manual cost 2
       { id: 'base', nome: 'Base botton', unidade: 'un', estoqueInicial: '10', estoqueMin: '50' }, // cost from purchases
     ],
     produtos: [
       // materials: paper 1/4 sheet × 2 = 0.50, base 1 × 0.6667 → 1.1667; waste 5% → 0.0583;
       // labor 6 min → 2.00; extras 0.30 → total 3.525
-      { id: 'botton', nome: 'Botton', tempoMin: '6', custoExtra: '0,30', estoqueInicial: '5',
-        insumos: [{ insumoId: 'paper', qtd: '1', rende: '4' }, { insumoId: 'base', qtd: '1', rende: '1' }] },
-      { id: 'card', nome: 'Cartão', tempoMin: '0', custoExtra: '1', insumos: [] },               // total 1.00
+      {
+        id: 'botton',
+        nome: 'Botton',
+        tempoMin: '6',
+        custoExtra: '0,30',
+        estoqueInicial: '5',
+        insumos: [
+          { insumoId: 'paper', qtd: '1', rende: '4' },
+          { insumoId: 'base', qtd: '1', rende: '1' },
+        ],
+      },
+      { id: 'card', nome: 'Cartão', tempoMin: '0', custoExtra: '1', insumos: [] }, // total 1.00
     ],
     gastos: [
       { id: 'g1', data: '2026-10-01', valor: '50', frete: '10', insumoId: 'base', qtd: '100' },
-      { id: 'g2', data: '2026-10-15', valor: '40', frete: '', insumoId: 'base', qtd: '50' },     // base: (60 + 40) / 150 = 0.6667
+      { id: 'g2', data: '2026-10-15', valor: '40', frete: '', insumoId: 'base', qtd: '50' }, // base: (60 + 40) / 150 = 0.6667
       { id: 'g3', data: '2026-09-10', valor: '25', frete: '0' },
     ],
     producoes: [
@@ -33,8 +43,19 @@ function fixture() {
     pedidos: [
       // subtotal 2 × 8.90 + 1 × 5 = 22.80; + shipping charged 10 − discount 2.80 = 30.00;
       // − platform fee 3 − real shipping 8 = net 19.00
-      { id: 'o1', data: '2026-10-05', status: 'novo', freteCobrado: '10', desconto: '2,80', taxaValor: '3', custoEnvio: '8',
-        itens: [{ produtoId: 'botton', qtd: '2', preco: '8,90' }, { produtoId: 'card', qtd: '1', preco: '5' }] },
+      {
+        id: 'o1',
+        data: '2026-10-05',
+        status: 'novo',
+        freteCobrado: '10',
+        desconto: '2,80',
+        taxaValor: '3',
+        custoEnvio: '8',
+        itens: [
+          { produtoId: 'botton', qtd: '2', preco: '8,90' },
+          { produtoId: 'card', qtd: '1', preco: '5' },
+        ],
+      },
       { id: 'o2', data: '2026-10-07', status: 'cancelado', itens: [{ produtoId: 'botton', qtd: '2', preco: '50' }] },
       { id: 'o3', data: '2026-09-20', status: 'entregue', itens: [{ produtoId: 'card', qtd: '4', preco: '5' }] },
     ],
@@ -112,12 +133,12 @@ describe('product cost and price', () => {
   });
   test('suggested price = cost × (1 + margin) ÷ (1 − fee), rounded up to end in ,90', () => {
     const k = app.custo(app.prodById('botton'));
-    close(k.sugerido, 3.525 * 2 / 0.88);   // 8.0114
+    close(k.sugerido, (3.525 * 2) / 0.88); // 8.0114
     close(k.redondo, 8.9);
     close(k.preco, 8.9);
     assert.equal(k.manual, false);
-    close(k.lucro, 8.9 * 0.88 - 3.525);     // 4.307
-    close(k.margemReal, (8.9 * 0.88 - 3.525) / 8.9 * 100);
+    close(k.lucro, 8.9 * 0.88 - 3.525); // 4.307
+    close(k.margemReal, ((8.9 * 0.88 - 3.525) / 8.9) * 100);
   });
   test('a price set by hand wins over the suggestion', () => {
     const k = app.custo({ ...app.prodById('botton'), preco: '10,00' });
@@ -126,7 +147,7 @@ describe('product cost and price', () => {
   });
   test('a product can override the default margin', () => {
     const k = app.custo({ ...app.prodById('botton'), margem: '50' });
-    close(k.sugerido, 3.525 * 1.5 / 0.88);  // 6.0085
+    close(k.sugerido, (3.525 * 1.5) / 0.88); // 6.0085
     close(k.redondo, 6.9);
   });
   test('changing the hourly rate in settings changes the cost', () => {
@@ -151,20 +172,20 @@ describe('orders, month summary and profit', () => {
   });
   test('resumoMes(): sales, net, expenses and cash for one month', () => {
     const r = app.resumoMes('2026-10');
-    assert.equal(r.n, 1);                    // the cancelled order is ignored
+    assert.equal(r.n, 1); // the cancelled order is ignored
     close(r.vendas, 30);
     close(r.liquido, 19);
-    close(r.gastos, 100);                    // 60 + 40 (September's expense is ignored)
+    close(r.gastos, 100); // 60 + 40 (September's expense is ignored)
     close(r.saldo, -81);
     close(r.ticket, 30);
   });
   test('monthProfit(): sales − cost of pieces sold − fees and shipping', () => {
     const p = app.monthProfit('2026-10');
     close(p.sales, 30);
-    close(p.goodsCost, 2 * 3.525 + 1);       // 8.05
+    close(p.goodsCost, 2 * 3.525 + 1); // 8.05
     close(p.feesAndShipping, 11);
-    close(p.profit, 19 - 8.05);              // 10.95
-    close(p.margin, 10.95 / 30 * 100);
+    close(p.profit, 19 - 8.05); // 10.95
+    close(p.margin, (10.95 / 30) * 100);
     assert.equal(p.orders, 1);
   });
   test('monthProfit(): order fees and discounts are split among items by revenue', () => {
@@ -184,7 +205,12 @@ describe('orders, month summary and profit', () => {
     assert.deepEqual([p.sales, p.profit, p.margin, p.orders], [0, 0, 0, 0]);
   });
   test('monthProfit(): a removed product counts as zero cost', () => {
-    app.S.pedidos.push({ id: 'o4', data: '2026-08-01', status: 'novo', itens: [{ produtoId: 'gone', qtd: '1', preco: '7' }] });
+    app.S.pedidos.push({
+      id: 'o4',
+      data: '2026-08-01',
+      status: 'novo',
+      itens: [{ produtoId: 'gone', qtd: '1', preco: '7' }],
+    });
     close(app.monthProfit('2026-08').profit, 7);
     app.S.pedidos.pop();
   });
@@ -192,16 +218,21 @@ describe('orders, month summary and profit', () => {
 
 describe('tasks and dates (clock fixed at 2026-10-20)', () => {
   const app = loadApp();
-  app.setData({ tarefas: [
-    { id: 't1', titulo: 'Atrasada', prazo: '2026-10-19', feito: false },
-    { id: 't2', titulo: 'Hoje', prazo: '2026-10-20', feito: false },
-    { id: 't3', titulo: 'Amanhã', prazo: '2026-10-21', feito: false },
-    { id: 't4', titulo: 'Feita', prazo: '2026-10-01', feito: true },
-    { id: 't5', titulo: 'Sem prazo', prazo: '', feito: false },
-  ] });
+  app.setData({
+    tarefas: [
+      { id: 't1', titulo: 'Atrasada', prazo: '2026-10-19', feito: false },
+      { id: 't2', titulo: 'Hoje', prazo: '2026-10-20', feito: false },
+      { id: 't3', titulo: 'Amanhã', prazo: '2026-10-21', feito: false },
+      { id: 't4', titulo: 'Feita', prazo: '2026-10-01', feito: true },
+      { id: 't5', titulo: 'Sem prazo', prazo: '', feito: false },
+    ],
+  });
   test('today() follows the local date', () => assert.equal(app.today(), '2026-10-20'));
   test('tarefasUrgentes(): pending tasks due today or earlier, oldest first', () => {
-    assert.deepEqual(app.tarefasUrgentes().map(t => t.id), ['t1', 't2']);
+    assert.deepEqual(
+      app.tarefasUrgentes().map(t => t.id),
+      ['t1', 't2'],
+    );
   });
   test('prazoLabel(): relative names near today, short date otherwise', () => {
     assert.equal(app.prazoLabel('2026-10-20'), 'Hoje');
@@ -217,13 +248,23 @@ describe('backup and restore', () => {
   const app = loadApp();
   app.setData(fixture());
   test('recordsFrom() keeps valid records and skips bad ids', () => {
-    const recs = app.recordsFrom({ config: { nomeLoja: 'X' }, insumos: { ok_1: { nome: 'A' }, 'bad id!': { nome: 'B' } }, pedidos: [] });
+    const recs = app.recordsFrom({
+      config: { nomeLoja: 'X' },
+      insumos: { ok_1: { nome: 'A' }, 'bad id!': { nome: 'B' } },
+      pedidos: [],
+    });
     // Array.from: the array was created inside the VM context (another realm).
-    assert.deepEqual(Array.from(recs, r => `${r.colecao}/${r.id}`), ['config/geral', 'insumos/ok_1']);
+    assert.deepEqual(
+      Array.from(recs, r => `${r.colecao}/${r.id}`),
+      ['config/geral', 'insumos/ok_1'],
+    );
   });
   test('a backup restores every record', () => {
     const backup = JSON.parse(JSON.stringify(app.backupObj()));
-    const total = ['insumos', 'produtos', 'gastos', 'pedidos', 'producoes', 'tarefas'].reduce((a, k) => a + app.S[k].length, 0);
+    const total = ['insumos', 'produtos', 'gastos', 'pedidos', 'producoes', 'tarefas'].reduce(
+      (a, k) => a + app.S[k].length,
+      0,
+    );
     assert.equal(app.recordsFrom(backup).length, total + 1); // + config
     assert.equal(backup.insumos.base.estoqueInicial, '10');
     assert.equal('id' in backup.insumos.base, false);
