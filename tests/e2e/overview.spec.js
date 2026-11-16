@@ -2,7 +2,9 @@
 const { test, expect } = require('@playwright/test');
 const { salesCard, openDashboard } = require('./helpers');
 
-test.beforeEach(async ({ page }) => { await openDashboard(page); });
+test.beforeEach(async ({ page }) => {
+  await openDashboard(page);
+});
 
 test('opens in demo mode on the current month with sample data', async ({ page }) => {
   await expect(page.locator('#demoBar')).toBeVisible();
