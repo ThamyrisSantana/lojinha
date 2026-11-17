@@ -1,12 +1,26 @@
+import {
+  closestCenter,
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type Announcements,
+  type DragEndEvent,
+  type UniqueIdentifier,
+} from '@dnd-kit/core';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS as DndCSS } from '@dnd-kit/utilities';
 import { getRouteApi } from '@tanstack/react-router';
-import { useRef, type ReactNode } from 'react';
+import { useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode, type Ref } from 'react';
 import { Button, ConfirmButton } from '@/components/ui/Button';
 import { Chip, Count, SampleChip } from '@/components/ui/Chip';
 import { controlClass } from '@/components/ui/Field';
+import { Icon } from '@/components/ui/Icon';
 import { EmptyState, PageHeader } from '@/components/ui/Layout';
 import { Segmented } from '@/components/ui/Segmented';
 import { toast } from '@/components/ui/toast';
-import { taskOrder } from '@/domain/calc';
+import { moveTask, taskOrder } from '@/domain/calc';
 import { ETIQUETAS, PRIORITY_OPTIONS, priorityOf } from '@/domain/constants';
 import type { Priority, Tarefa } from '@/domain/types';
 import { useCalc, useRemove, useSave } from '@/data/queries';
@@ -43,7 +57,7 @@ export default function TasksPage() {
     ['Sem prazo', t => !t.prazo],
   ];
   const pendingGroups = groups.map(([title, test, late]) => (
-    <TaskGroup key={title} title={title} late={late} tasks={pending.filter(test).toSorted(taskOrder)} />
+    <TaskGroup key={title} title={title} late={late} tasks={pending.filter(test).toSorted(taskOrder)} sortable />
   ));
   const doneGroup = (
     <TaskGroup
@@ -186,24 +200,170 @@ function QuickAdd({ tag }: { tag: string }) {
   );
 }
 
-function TaskGroup({ title, tasks, late, action }: { title: string; tasks: Tarefa[]; late?: boolean; action?: ReactNode }) {
+const MOVE_HELP = 'Arraste para mudar a ordem, ou use as setas para cima e para baixo (Home e End levam ao início e ao fim).';
+
+const MOVE_KEYS: Record<string, (i: number, last: number) => number> = {
+  ArrowUp: i => i - 1,
+  ArrowDown: i => i + 1,
+  Home: () => 0,
+  End: (_, last) => last,
+};
+
+/** A list of tasks under a heading. `sortable` lets the user put them in their own order:
+ *  by dragging the handle (mouse or touch) or with the arrow keys on it. */
+function TaskGroup({
+  title,
+  tasks,
+  late,
+  action,
+  sortable,
+}: {
+  title: string;
+  tasks: Tarefa[];
+  late?: boolean;
+  action?: ReactNode;
+  sortable?: boolean;
+}) {
+  const { saveMany } = useSave();
+  // Keyboard moves are handled by the handle itself (below), not by dnd-kit's keyboard sensor:
+  // on a scrolled page that sensor scrolls instead of moving the task.
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const list = useRef<HTMLDivElement>(null);
+  const [status, setStatus] = useState('');
+
+  // After a move, show the new order at once, until the saved data catches up (no snap back).
+  const ids = tasks.map(t => t.id);
+  const [moved, setMoved] = useState<string[] | null>(null);
+  const [seen, setSeen] = useState(ids.join());
+  if (seen !== ids.join()) {
+    setSeen(ids.join());
+    setMoved(null);
+  }
+  const shown = moved ? moved.map(id => tasks.find(t => t.id === id)).filter((t): t is Tarefa => !!t) : tasks;
+  const shownIds = shown.map(t => t.id);
+  const canSort = sortable && shown.length > 1;
+
   if (!tasks.length) return null;
+
+  const name = (id: UniqueIdentifier) => shown.find(t => t.id === id)?.titulo ?? '';
+  const place = (i: number) => `posição ${i + 1} de ${shown.length}`;
+  const announcements: Announcements = {
+    onDragStart: ({ active }) => `Tarefa ${name(active.id)} selecionada, ${place(shownIds.indexOf(String(active.id)))}.`,
+    onDragOver: ({ active, over }) => (over ? `Tarefa ${name(active.id)} na ${place(shownIds.indexOf(String(over.id)))}.` : undefined),
+    onDragEnd: ({ active, over }) =>
+      over ? `Tarefa ${name(active.id)} solta na ${place(shownIds.indexOf(String(over.id)))}.` : `Tarefa ${name(active.id)} solta.`,
+    onDragCancel: ({ active }) =>
+      `Movimento cancelado. Tarefa ${name(active.id)} continua na ${place(shownIds.indexOf(String(active.id)))}.`,
+  };
+
+  const move = async (from: number, to: number) => {
+    const changed = moveTask(shown, from, to);
+    if (!changed.length) return;
+    const id = shownIds[from];
+    setMoved(shownIds.toSpliced(from, 1).toSpliced(to, 0, id));
+    try {
+      await saveMany('tarefas', changed);
+    } catch {
+      setMoved(null); // already reported; the list goes back to what is stored
+    }
+  };
+
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (over) void move(shownIds.indexOf(String(active.id)), shownIds.indexOf(String(over.id)));
+  };
+
+  const onKey = (e: KeyboardEvent<HTMLButtonElement>, from: number) => {
+    const target = MOVE_KEYS[e.key]?.(from, shown.length - 1);
+    if (target === undefined) return;
+    e.preventDefault();
+    const to = Math.max(0, Math.min(shown.length - 1, target));
+    if (to === from) return setStatus(`Tarefa ${shown[from].titulo} já está na ${place(from)}.`);
+    void move(from, to);
+    setStatus(`Tarefa ${shown[from].titulo} movida para a ${place(to)}.`);
+    // React may re-insert the moved row, which drops focus: put it back on its handle.
+    const id = shownIds[from];
+    requestAnimationFrame(() => list.current?.querySelector<HTMLElement>(`[data-handle="${CSS.escape(id)}"]`)?.focus());
+  };
+
+  const items = (
+    <div ref={list} className="flex flex-col gap-2">
+      {shown.map((t, i) =>
+        canSort ? <SortableTaskItem key={t.id} task={t} onKeyDown={e => onKey(e, i)} /> : <TaskItem key={t.id} task={t} />,
+      )}
+    </div>
+  );
   return (
     <section data-group={title}>
       <h2 className={cn('mb-2.5 flex items-center gap-2 text-md/snug font-bold tracking-tight', late && 'text-danger')}>
         {title} <Count value={tasks.length} />
         {action}
       </h2>
-      <div className="flex flex-col gap-2">
-        {tasks.map(t => (
-          <TaskItem key={t.id} task={t} />
-        ))}
-      </div>
+      {canSort ? (
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+          accessibility={{ announcements, screenReaderInstructions: { draggable: MOVE_HELP } }}
+          onDragEnd={onDragEnd}
+        >
+          <SortableContext items={shownIds} strategy={verticalListSortingStrategy}>
+            {items}
+          </SortableContext>
+        </DndContext>
+      ) : (
+        items
+      )}
+      <p aria-live="polite" className="sr-only">
+        {status}
+      </p>
     </section>
   );
 }
 
-function TaskItem({ task: t }: { task: Tarefa }) {
+/** A task with a handle: drag it (mouse or touch) or press the arrow keys on it to change its place. */
+function SortableTaskItem({ task, onKeyDown }: { task: Tarefa; onKeyDown: (e: KeyboardEvent<HTMLButtonElement>) => void }) {
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+    attributes: { roleDescription: 'tarefa reordenável' },
+  });
+  return (
+    <TaskItem
+      task={task}
+      ref={setNodeRef}
+      style={{ transform: DndCSS.Translate.toString(transform), transition }}
+      dragging={isDragging}
+      handle={
+        <button
+          type="button"
+          ref={setActivatorNodeRef}
+          data-handle={task.id}
+          aria-label={`Mover: ${task.titulo}`}
+          title="Arraste ou use as setas para mudar a ordem"
+          className="-my-1 -ml-2 grid h-8 w-6 cursor-grab touch-none place-items-center rounded-sm text-fg-subtle hover:text-fg active:cursor-grabbing [&_svg]:size-4.5"
+          {...attributes}
+          {...listeners}
+          onKeyDown={onKeyDown}
+        >
+          <Icon name="grip" />
+        </button>
+      }
+    />
+  );
+}
+
+function TaskItem({
+  task: t,
+  handle,
+  dragging,
+  ref,
+  style,
+}: {
+  task: Tarefa;
+  handle?: ReactNode;
+  dragging?: boolean;
+  ref?: Ref<HTMLDivElement>;
+  style?: CSSProperties;
+}) {
   const openForm = useOpenForm();
   const { save } = useSave();
   const h = today();
@@ -219,13 +379,18 @@ function TaskItem({ task: t }: { task: Tarefa }) {
   };
   return (
     <div
+      ref={ref}
+      style={style}
       data-task={t.titulo}
       data-done={t.feito || undefined}
       className={cn(
-        'grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-3.5 rounded-sm border border-border px-4 py-3.5 hover:border-border-strong',
+        'grid items-start gap-3.5 rounded-sm border border-border px-4 py-3.5 hover:border-border-strong',
+        handle ? 'grid-cols-[auto_auto_minmax(0,1fr)_auto]' : 'grid-cols-[auto_minmax(0,1fr)_auto]',
         t.feito ? 'bg-transparent' : 'bg-surface shadow-sm',
+        dragging && 'relative z-10 border-border-strong shadow-lg',
       )}
     >
+      {handle}
       <button
         type="button"
         aria-pressed={!!t.feito}

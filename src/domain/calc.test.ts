@@ -2,8 +2,8 @@
 // comments, from the rules in the README.
 import { applyRecords, backupObj, recordsFrom } from '@/data/backup';
 import sample from '@/data/exemplo.json';
-import { emptyDb, type Db } from '@/domain/types';
-import { createCalc, insStatus, totPedido } from './calc';
+import { emptyDb, type Db, type Tarefa } from '@/domain/types';
+import { createCalc, insStatus, moveTask, taskOrder, totPedido } from './calc';
 
 const close = (actual: number, expected: number) => expect(actual).toBeCloseTo(expected, 6);
 
@@ -225,5 +225,36 @@ describe('sample data (exemplo.json) regression', () => {
   test('August and September 2026 profit', () => {
     expect(round(calc.monthProfit('2026-08').profit)).toBe(191.99);
     expect(round(calc.monthProfit('2026-09').profit)).toBe(149.41);
+  });
+});
+
+describe('task order', () => {
+  const task = (id: string, extra: Partial<Tarefa> = {}): Tarefa => ({ id, titulo: id, criadoEm: `2026-10-0${id.slice(1)}`, ...extra });
+
+  test('taskOrder(): the order set by the user comes first, then due date, priority and creation', () => {
+    const list = [
+      task('t1', { prazo: '2026-10-01' }),
+      task('t2', { prazo: '2026-10-05', ordem: 2 }),
+      task('t3', { prazo: '2026-10-09', ordem: 1 }),
+      task('t4'),
+      task('t5', { prazo: '2026-10-01', prioridade: 'alta' }),
+    ];
+    // Moved tasks (t3, t2) by their order; the others after them, by date (t5 before t1: higher priority), no date last.
+    expect(list.toSorted(taskOrder).map(t => t.id)).toEqual(['t3', 't2', 't5', 't1', 't4']);
+  });
+
+  test('moveTask(): numbers the list in its new order and returns only what changed', () => {
+    const list = [task('t1', { ordem: 1 }), task('t2', { ordem: 2 }), task('t3'), task('t4')];
+    // t4 to the second place: t1 keeps 1, t4 gets 2, t2 becomes 3, t3 (never moved) gets 4.
+    expect(moveTask(list, 3, 1).map(t => [t.id, t.ordem])).toEqual([
+      ['t4', 2],
+      ['t2', 3],
+      ['t3', 4],
+    ]);
+    // Up from the first place or to the same place: nothing to save.
+    expect(moveTask(list, 0, 0)).toEqual([]);
+    expect(moveTask(list, 0, -1)).toEqual([]);
+    // The list given is not changed.
+    expect(list.map(t => t.ordem)).toEqual([1, 2, undefined, undefined]);
   });
 });

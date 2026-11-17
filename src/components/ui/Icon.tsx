@@ -74,6 +74,7 @@ const PATHS = {
     </>
   ),
   check: <path d="M20 6 9 17l-5-5" />,
+  grip: <path d="M9 5h.01M9 12h.01M9 19h.01M15 5h.01M15 12h.01M15 19h.01" strokeWidth="3" strokeLinecap="round" />,
 } as const;
 
 export type IconName = keyof typeof PATHS;

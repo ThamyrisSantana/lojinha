@@ -63,3 +63,23 @@ test('the top bar button switches the theme', async ({ page }) => {
   await page.getByRole('button', { name: 'Usar tema claro' }).click();
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
 });
+
+test('a task can be dragged with a finger', async ({ page }) => {
+  await page.goto('/#/tarefas');
+  const group = page.locator('[data-group="Atrasadas"]');
+  const titles = () => group.locator('[data-task]').evaluateAll(els => els.map(e => (e as HTMLElement).dataset.task));
+  await expect(group.locator('[data-task]')).toHaveCount(3);
+  const [first, second, third] = await titles();
+  await group.locator(`[data-task="${third}"]`).scrollIntoViewIfNeeded();
+  const from = (await group.getByRole('button', { name: `Mover: ${first}` }).boundingBox())!;
+  const to = (await group.locator(`[data-task="${third}"]`).boundingBox())!;
+  // Real touch events (Chrome DevTools Protocol), so the handle's touch-action is exercised too.
+  const cdp = await page.context().newCDPSession(page);
+  const touch = (type: string, y: number) =>
+    cdp.send('Input.dispatchTouchEvent', { type, touchPoints: type === 'touchEnd' ? [] : [{ x: from.x + from.width / 2, y }] });
+  await touch('touchStart', from.y + from.height / 2);
+  for (let i = 1; i <= 12; i++)
+    await touch('touchMove', from.y + from.height / 2 + ((to.y + to.height - 5 - from.y - from.height / 2) * i) / 12);
+  await touch('touchEnd', 0);
+  await expect.poll(titles).toEqual([second, third, first]);
+});

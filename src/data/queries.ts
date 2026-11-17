@@ -75,6 +75,9 @@ export function useSave() {
     ...m,
     /** save('pedidos', pedido) */
     save: <C extends Collection>(colecao: C, record: RecordOf<C>) => m.mutateAsync(toStored([{ colecao, record }])),
+    /** saveMany('tarefas', [t1, t2]): several records of one collection in a single save. */
+    saveMany: <C extends Collection>(colecao: C, records: RecordOf<C>[]) =>
+      m.mutateAsync(toStored(records.map(record => ({ colecao, record })))),
     saveConfig: (config: Db['config']) => m.mutateAsync(toStored([{ colecao: 'config', record: config }])),
     saveRecords: (recs: StoredRecord[]) => m.mutateAsync(recs),
   };

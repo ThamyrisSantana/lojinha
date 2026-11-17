@@ -116,6 +116,8 @@ export interface Tarefa extends BaseRecord {
   notas?: string;
   feito?: boolean;
   feitoEm?: string;
+  /** Position the user chose by dragging (1, 2, 3…), within its due-date group. Tasks never moved have none. */
+  ordem?: number;
 }
 
 export interface Config {
