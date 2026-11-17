@@ -16,7 +16,7 @@ The sidebar groups the screens by topic. On mobile it becomes a slide-out menu p
 | Group | Screen | What it does |
 |---|---|---|
 | Dia a dia (day to day) | **Visão geral** (overview) | Monthly profit and margin, sales, cash flow, a sales vs. expenses chart, products ranked by profit or by pieces, sales by channel and a "Precisa de atenção" (needs attention) list with one-click actions. |
-| | **Tarefas** (tasks) | To-do list with due dates, priority and tags, grouped by overdue / today / next 7 days. |
+| | **Tarefas** (tasks) | To-do list with due dates, priority and tags, grouped by overdue / today / next 7 days. Tasks can be put in your own order inside each group: drag the handle (mouse or finger) or focus it and use the arrow keys (Home/End go to the top/bottom). |
 | | **Pedidos** (orders) | Sales by channel, net amount after fees and shipping, invoice number and status. |
 | Produtos (products) | **Catálogo** (catalog) | Product cards with artwork, ready stock and print settings (paper, size, color adjustments), plus a print queue. |
 | | **Preços** (pricing) | Cost per piece from supplies, labor and waste, suggested price and margin per product. |

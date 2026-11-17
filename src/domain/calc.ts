@@ -40,10 +40,21 @@ export function totPedido(o: Pick<Pedido, 'itens' | 'freteCobrado' | 'desconto' 
 }
 
 /** Task sort: due date, then priority (high first), then creation. */
+/** Order of the tasks in a list: the order the user set by dragging comes first; tasks never
+ *  moved go after them, by due date, then priority, then creation. */
 export const taskOrder = (a: Tarefa, b: Tarefa): number =>
+  (a.ordem ?? Number.MAX_SAFE_INTEGER) - (b.ordem ?? Number.MAX_SAFE_INTEGER) ||
   (a.prazo || '9999').localeCompare(b.prazo || '9999') ||
   priorityOf(b).weight - priorityOf(a).weight ||
   (a.criadoEm || '').localeCompare(b.criadoEm || '');
+
+/** Moves the task at `from` to `to` in a list as shown, and returns the tasks to save: every
+ *  task of the list gets its new position (1, 2, 3…), and only those whose position changed are returned. */
+export function moveTask(list: Tarefa[], from: number, to: number): Tarefa[] {
+  if (from === to || !list[from] || !list[to]) return [];
+  const next = list.toSpliced(from, 1).toSpliced(to, 0, list[from]);
+  return next.flatMap((t, i) => (t.ordem === i + 1 ? [] : [{ ...t, ordem: i + 1 }]));
+}
 
 export interface ProductCost {
   linhas: (RecipeLine & { ins?: Insumo; q: number; u: number; sub: number })[];
