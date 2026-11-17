@@ -1,13 +1,17 @@
 [build]
-  publish = "public"
-  # Run the unit tests before every deploy (production and pull request previews).
-  # If a test fails, the build fails and Netlify does not publish.
-  command = "npm run test:unit"
+  publish = "dist"
+  # Unit tests run before every deploy (production and pull request previews):
+  # if one fails, the build fails and Netlify does not publish. Then type check + production build.
+  command = "npm run test:unit && npm run build"
 
 [build.environment]
   NODE_VERSION = "22"
   # Only the Playwright test package is installed here; no browsers are needed for unit tests.
   PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1"
+  # Supabase project. The anon key is public by design: data is protected by the login and by
+  # row level security (supabase/schema.sql). Never put the service_role key here.
+  VITE_SUPABASE_URL = "https://dhfufeazjeglhbednxtx.supabase.co"
+  VITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRoZnVmZWF6amVnbGhiZWRueHR4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE4OTAyMjcsImV4cCI6MjEwNzQ2NjIyN30.SacWxmeaqY9DR2PIDfLDGDcs55jy1ipD29xPhEoa0OY"
 
 [[headers]]
   for = "/*"
@@ -16,3 +20,14 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     X-Robots-Tag = "noindex"
+
+# Built files have a content hash in their name, so they can be cached forever.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

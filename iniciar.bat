@@ -7,5 +7,6 @@ if errorlevel 1 (
   pause
   exit /b 1
 )
-node server.js
+if not exist node_modules call npm.cmd install
+call npm.cmd run dev -- --open
 pause
